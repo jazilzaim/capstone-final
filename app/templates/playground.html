@@ -1,0 +1,131 @@
+{% extends "base.html" %}
+
+{% block title %}API Playground | Argus Open Data Console{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="margin-top: 30px; margin-bottom: 20px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+            <div>
+                <h1 style="font-size: 1.8rem; font-weight: 800;">Interactive API Playground</h1>
+                <p style="color: var(--text-muted); font-size: 0.95rem;">Test municipal queries in real-time across Las Vegas, LA, Seattle, and Phoenix.</p>
+            </div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                {% if current_user %}
+                <span class="badge badge-purple">Personal Key ({{ current_user.name }})</span>
+                <span class="badge badge-cyan">{{ user_plan_tier | upper }} Tier</span>
+                {% else %}
+                <span class="badge badge-purple">Demo Key Active</span>
+                <span class="badge badge-cyan">Free Tier (30 req/min)</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Playground Two-Column Layout -->
+    <div class="playground-layout">
+        <!-- Left: Configuration Form -->
+        <div class="config-panel">
+            <h3 style="font-size: 1.1rem; font-weight: 700; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px;">
+                Request Parameters
+            </h3>
+
+            <div class="form-group">
+                <label for="input-endpoint">Resource Endpoint</label>
+                <select id="input-endpoint" class="form-control">
+                    <option value="/api/v1/incidents" selected>GET /api/v1/incidents (Public Safety)</option>
+                    <option value="/api/v1/permits">GET /api/v1/permits (Building Permits)</option>
+                    <option value="/api/v1/businesses">GET /api/v1/businesses (Active Licenses)</option>
+                    <option value="/api/v1/cities">GET /api/v1/cities (Portal Directory)</option>
+                    <option value="/api/v1/analytics/summary">GET /api/v1/analytics/summary (Cross-City)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="input-city">Target Municipality</label>
+                <select id="input-city" class="form-control">
+                    <option value="all" selected>All 4 Cities (Cross-City Aggregate)</option>
+                    <option value="las_vegas">Las Vegas, NV (ArcGIS)</option>
+                    <option value="los_angeles">Los Angeles, CA (Socrata)</option>
+                    <option value="seattle">Seattle, WA (Socrata)</option>
+                    <option value="phoenix">Phoenix, AZ (CKAN)</option>
+                </select>
+            </div>
+
+            <div class="form-group" id="group-category">
+                <label for="input-category">Incident Category</label>
+                <select id="input-category" class="form-control">
+                    <option value="all" selected>All Categories</option>
+                    <option value="Violent Crime">Violent Crime</option>
+                    <option value="Property Crime">Property Crime</option>
+                    <option value="Traffic">Traffic & Collision</option>
+                    <option value="Public Order">Public Order</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="input-query">Keyword Search</label>
+                <input type="text" id="input-query" class="form-control" placeholder="e.g. burglary, solar, cafe...">
+            </div>
+
+            <div class="form-group">
+                <label for="input-limit">Limit (Records)</label>
+                <input type="number" id="input-limit" class="form-control" value="5" min="1" max="100">
+            </div>
+
+            <div class="form-group">
+                <label for="input-api-key">API Key (X-API-Key)</label>
+                <input type="text" id="input-api-key" class="form-control" value="{{ user_primary_key or 'argus_demo_free_key_2026' }}" style="font-family: var(--font-mono); font-size: 0.82rem;">
+            </div>
+
+            <button class="btn btn-primary" id="btn-run-query" style="width: 100%; margin-top: 8px;">
+                Execute Request
+            </button>
+        </div>
+
+        <!-- Right: Response Console -->
+        <div class="console-panel">
+            <div class="console-header">
+                <div class="url-bar">
+                    <span class="method-tag">GET</span>
+                    <span id="display-url">/api/v1/incidents?limit=5</span>
+                </div>
+                <div style="display: flex; gap: 8px; align-items: center;">
+                    <span id="response-status" class="badge badge-online">200 OK</span>
+                    <span id="response-latency" class="badge badge-purple">-- ms</span>
+                    <button class="btn btn-secondary btn-sm copy-btn" data-clipboard-target="#json-output">Copy JSON</button>
+                </div>
+            </div>
+
+            <div class="console-tabs">
+                <div class="console-tab active" data-target="tab-json">JSON Response</div>
+                <div class="console-tab" data-target="tab-curl">cURL</div>
+                <div class="console-tab" data-target="tab-python">Python (Requests)</div>
+                <div class="console-tab" data-target="tab-js">JavaScript (Fetch)</div>
+            </div>
+
+            <div class="console-body">
+                <!-- Tab: JSON -->
+                <div id="tab-json" class="tab-content" style="display: block;">
+                    <pre class="code-block" id="json-output">Loading initial response...</pre>
+                </div>
+
+                <!-- Tab: cURL -->
+                <div id="tab-curl" class="tab-content" style="display: none;">
+                    <pre class="code-block" id="curl-output"></pre>
+                </div>
+
+                <!-- Tab: Python -->
+                <div id="tab-python" class="tab-content" style="display: none;">
+                    <pre class="code-block" id="python-output"></pre>
+                </div>
+
+                <!-- Tab: JavaScript -->
+                <div id="tab-js" class="tab-content" style="display: none;">
+                    <pre class="code-block" id="js-output"></pre>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

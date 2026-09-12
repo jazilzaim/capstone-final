@@ -1,0 +1,108 @@
+{% extends "dashboard/layout.html" %}
+
+{% block title %}Workbench | Argus API Shell{% endblock %}
+
+{% block dashboard_content %}
+<div style="margin-bottom: 24px;">
+    <h1 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 6px;">Stripe Workbench & API Explorer</h1>
+    <p style="color: var(--stripe-text-secondary); font-size: 0.92rem;">Execute live queries against municipal gateways or sandbox endpoints without writing code.</p>
+</div>
+
+<div class="playground-layout" style="margin-top: 0;">
+    <!-- Left Configuration Panel -->
+    <div class="config-panel" style="background: var(--stripe-card-bg); border-color: var(--stripe-card-border);">
+        <h3 style="font-size: 1.05rem; font-weight: 700; border-bottom: 1px solid var(--stripe-border-subtle); padding-bottom: 10px;">
+            Request Builder
+        </h3>
+
+        <div class="form-group">
+            <label for="input-endpoint">Resource Endpoint</label>
+            <select id="input-endpoint" class="form-control">
+                <option value="/api/v1/incidents" selected>GET /api/v1/incidents (Public Safety)</option>
+                <option value="/api/v1/permits">GET /api/v1/permits (Building Permits)</option>
+                <option value="/api/v1/businesses">GET /api/v1/businesses (Commercial Entities)</option>
+                <option value="/api/v1/cities">GET /api/v1/cities (Portal Directory)</option>
+                <option value="/api/v1/analytics/summary">GET /api/v1/analytics/summary (Cross-City)</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="input-city">Target Municipality</label>
+            <select id="input-city" class="form-control">
+                <option value="all" selected>All 4 Cities (Cross-City Aggregate)</option>
+                <option value="las_vegas">Las Vegas, NV (ArcGIS)</option>
+                <option value="los_angeles">Los Angeles, CA (Socrata)</option>
+                <option value="seattle">Seattle, WA (Socrata)</option>
+                <option value="phoenix">Phoenix, AZ (CKAN)</option>
+            </select>
+        </div>
+
+        <div class="form-group" id="group-category">
+            <label for="input-category">Incident Category</label>
+            <select id="input-category" class="form-control">
+                <option value="all" selected>All Categories</option>
+                <option value="Violent Crime">Violent Crime</option>
+                <option value="Property Crime">Property Crime</option>
+                <option value="Traffic">Traffic & Collision</option>
+                <option value="Public Order">Public Order</option>
+            </select>
+        </div>
+
+        <div class="form-group">
+            <label for="input-query">Keyword Search</label>
+            <input type="text" id="input-query" class="form-control" placeholder="e.g. burglary, solar, cafe...">
+        </div>
+
+        <div class="form-group">
+            <label for="input-limit">Limit (Records)</label>
+            <input type="number" id="input-limit" class="form-control" value="5" min="1" max="100">
+        </div>
+
+        <div class="form-group">
+            <label for="input-api-key">API Key (X-API-Key)</label>
+            <input type="text" id="input-api-key" class="form-control" value="{{ user_primary_key or 'argus_demo_free_key_2026' }}" style="font-family: var(--font-code); font-size: 0.8rem;">
+        </div>
+
+        <button class="btn-stripe-primary" id="btn-run-query" style="width: 100%; justify-content: center; margin-top: 8px;">
+            Execute Request
+        </button>
+    </div>
+
+    <!-- Right Response Console -->
+    <div class="console-panel" style="background: #060910; border-color: var(--stripe-card-border);">
+        <div class="console-header" style="background: #0a0f1d; border-color: var(--stripe-border-subtle);">
+            <div class="url-bar">
+                <span class="method-tag">GET</span>
+                <span id="display-url">/api/v1/incidents?limit=5</span>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <span id="response-status" class="stripe-status-pill stripe-status-200">200 OK</span>
+                <span id="response-latency" class="badge badge-purple">-- ms</span>
+                <button class="btn-stripe-secondary copy-btn" data-clipboard-target="#json-output" style="padding: 4px 10px; font-size: 0.78rem;">Copy JSON</button>
+            </div>
+        </div>
+
+        <div class="console-tabs" style="border-color: var(--stripe-border-subtle); background: #080d19;">
+            <div class="console-tab active" data-target="tab-json">JSON Response</div>
+            <div class="console-tab" data-target="tab-curl">cURL</div>
+            <div class="console-tab" data-target="tab-python">Python (Requests)</div>
+            <div class="console-tab" data-target="tab-js">JavaScript (Fetch)</div>
+        </div>
+
+        <div class="console-body">
+            <div id="tab-json" class="tab-content" style="display: block;">
+                <pre class="code-block" id="json-output">Executing initial request...</pre>
+            </div>
+            <div id="tab-curl" class="tab-content" style="display: none;">
+                <pre class="code-block" id="curl-output"></pre>
+            </div>
+            <div id="tab-python" class="tab-content" style="display: none;">
+                <pre class="code-block" id="python-output"></pre>
+            </div>
+            <div id="tab-js" class="tab-content" style="display: none;">
+                <pre class="code-block" id="js-output"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

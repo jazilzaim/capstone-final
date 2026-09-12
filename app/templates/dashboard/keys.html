@@ -1,0 +1,150 @@
+{% extends "dashboard/layout.html" %}
+
+{% block title %}API Keys | Argus Developer Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
+    <div>
+        <h1 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 6px;">API Keys & Authentication</h1>
+        <p style="color: var(--stripe-text-secondary); font-size: 0.92rem;">Manage secret API keys, inspect quota consumption, and roll production tokens.</p>
+    </div>
+    <a href="#form-generate-key" class="btn-stripe-primary" style="padding: 8px 16px; font-size: 0.88rem;">+ Create Secret Key</a>
+</div>
+
+<!-- Quota & Rate Limit Summary Card -->
+<div class="stripe-kpi-grid" style="margin-bottom: 30px;">
+    <div class="stripe-kpi-card">
+        <div class="stripe-kpi-label">Free Plan Quota</div>
+        <div class="stripe-kpi-val" style="color: #a5b4fc;">30 <span style="font-size: 0.9rem; font-weight: 500; color: var(--stripe-text-muted);">req / min</span></div>
+        <div style="background: rgba(255,255,255,0.06); height: 6px; border-radius: 999px; margin: 10px 0 6px; overflow: hidden;">
+            <div style="background: #635bff; width: 35%; height: 100%;"></div>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--stripe-text-muted);">35% utilized in current sliding window</div>
+    </div>
+
+    <div class="stripe-kpi-card">
+        <div class="stripe-kpi-label">Developer Pro Quota</div>
+        <div class="stripe-kpi-val" style="color: #67e8f9;">120 <span style="font-size: 0.9rem; font-weight: 500; color: var(--stripe-text-muted);">req / min</span></div>
+        <div style="background: rgba(255,255,255,0.06); height: 6px; border-radius: 999px; margin: 10px 0 6px; overflow: hidden;">
+            <div style="background: #00d4ff; width: 15%; height: 100%;"></div>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--stripe-text-muted);">15% utilized</div>
+    </div>
+
+    <div class="stripe-kpi-card">
+        <div class="stripe-kpi-label">Enterprise Quota</div>
+        <div class="stripe-kpi-val" style="color: #34d399;">600 <span style="font-size: 0.9rem; font-weight: 500; color: var(--stripe-text-muted);">req / min</span></div>
+        <div style="background: rgba(255,255,255,0.06); height: 6px; border-radius: 999px; margin: 10px 0 6px; overflow: hidden;">
+            <div style="background: #00d924; width: 5%; height: 100%;"></div>
+        </div>
+        <div style="font-size: 0.75rem; color: var(--stripe-text-muted);">Dedicated high-throughput pipeline</div>
+    </div>
+</div>
+
+<!-- API Keys Table (Stripe Style) -->
+<div class="stripe-table-container">
+    <div class="stripe-table-header">
+        <div>
+            <h2 style="font-size: 1.15rem; font-weight: 700; margin: 0 0 4px;">Standard Keys</h2>
+            <p style="font-size: 0.82rem; color: var(--stripe-text-muted); margin: 0;">These keys have access to all 4 city municipal gateways (Las Vegas, LA, Seattle, Phoenix).</p>
+        </div>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table class="stripe-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Token (Secret)</th>
+                    <th>Plan Tier</th>
+                    <th>Rate Limit</th>
+                    <th>Requests Made</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% if user_keys %}
+                    {% for k in user_keys %}
+                    <tr>
+                        <td>
+                            <strong style="color: #fff;">{{ k.name }}</strong>
+                            <div style="font-size: 0.78rem; color: var(--stripe-text-muted);">{{ k.email or 'workspace' }}</div>
+                        </td>
+                        <td>
+                            <div style="display: flex; align-items: center; gap: 8px;">
+                                <input type="password" id="key-token-{{ loop.index }}" value="{{ k.key_hash }}" readonly style="background: transparent; border: none; font-family: var(--font-code); color: #fff; font-size: 0.85rem; width: 220px;">
+                                <button class="btn-stripe-secondary key-reveal-toggle" data-target="key-token-{{ loop.index }}" style="padding: 2px 8px; font-size: 0.72rem;">Reveal</button>
+                            </div>
+                        </td>
+                        <td>
+                            {% if k.tier == 'developer' %}
+                                <span class="badge badge-cyan">Developer</span>
+                            {% elif k.tier == 'enterprise' %}
+                                <span class="badge badge-online">Enterprise</span>
+                            {% else %}
+                                <span class="badge badge-purple">Free Tier</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-family: var(--font-code);">
+                            {% if k.tier == 'developer' %}120 / min{% elif k.tier == 'enterprise' %}600 / min{% else %}30 / min{% endif %}
+                        </td>
+                        <td style="font-family: var(--font-code); color: #00d4ff;">{{ k.total_requests or 0 }}</td>
+                        <td>
+                            <button class="btn-stripe-secondary copy-btn" data-clipboard-text="{{ k.key_hash }}" style="padding: 4px 10px; font-size: 0.78rem;">Copy</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                {% else %}
+                    <tr>
+                        <td colspan="6" style="text-align: center; color: var(--stripe-text-muted); padding: 24px;">
+                            No secret API keys issued yet. Generate your first key below.
+                        </td>
+                    </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<!-- Create Key Card -->
+<div class="stripe-kpi-card" style="margin-top: 30px;" id="create-key-section">
+    <h2 style="font-size: 1.25rem; font-weight: 700; margin-bottom: 16px;">Issue a New Secret API Key</h2>
+    <form id="form-generate-key">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+            <div class="form-group">
+                <label for="key-name">Key Identifier / Application Name</label>
+                <input type="text" id="key-name" class="form-control" placeholder="e.g. RealEstate-Pipeline-Prod" required>
+            </div>
+            <div class="form-group">
+                <label for="key-email">Developer Email</label>
+                <input type="email" id="key-email" class="form-control" placeholder="developer@company.com" value="{{ current_user.email if current_user else '' }}" required>
+            </div>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label for="key-tier">Rate Limit Tier</label>
+            <select id="key-tier" class="form-control">
+                <option value="free" selected>Free Explorer Tier (30 requests/minute)</option>
+                <option value="developer">Developer Pro Tier (120 requests/minute)</option>
+                <option value="enterprise">Enterprise Tier (600 requests/minute)</option>
+            </select>
+        </div>
+
+        <button type="submit" class="btn-stripe-primary" id="btn-submit-key">
+            Generate Secret Key
+        </button>
+    </form>
+
+    <!-- Success Result Box -->
+    <div id="key-result-box" style="display: none; margin-top: 20px; background: rgba(0, 217, 36, 0.08); border: 1px solid rgba(0, 217, 36, 0.3); border-radius: 8px; padding: 16px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+            <strong style="color: #00d924;">Secret Key Generated Successfully</strong>
+            <span id="generated-key-tier" class="stripe-status-pill stripe-status-200">FREE TIER</span>
+        </div>
+        <div style="display: flex; gap: 10px;">
+            <input type="text" id="generated-key-val" class="form-control" readonly style="font-family: var(--font-code); color: #00d924;">
+            <button class="btn-stripe-primary copy-btn" data-clipboard-target="#generated-key-val">Copy Key</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

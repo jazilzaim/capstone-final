@@ -1,0 +1,280 @@
+{% extends "base.html" %}
+
+{% block content %}
+<!-- Stripe Signature Radiant Hero Mesh -->
+<section class="stripe-hero-mesh" style="padding: 90px 0 100px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+    <div class="container">
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center;" class="hero-split-grid">
+            <!-- Left: Hero Headline & CTAs -->
+            <div>
+                <div class="hero-tag" style="background: rgba(99, 91, 255, 0.15); border-color: rgba(99, 91, 255, 0.35);">
+                    <span class="badge" style="background: #635bff; color: #fff; padding: 2px 8px;">NEW</span>
+                    <span style="color: #c7d2fe; font-weight: 600;">Universal Municipal Gateway</span>
+                </div>
+
+                <h1 style="font-size: clamp(2.4rem, 4.5vw, 3.8rem); font-weight: 800; line-height: 1.12; letter-spacing: -0.035em; margin-bottom: 22px;">
+                    The modern API for <br>
+                    <span style="background: linear-gradient(135deg, #ffffff 40%, #00d4ff 75%, #ff7062 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">
+                        municipal government data
+                    </span>
+                </h1>
+
+                <p style="font-size: 1.15rem; color: var(--stripe-text-secondary); line-height: 1.6; margin-bottom: 36px; max-width: 520px;">
+                    Millions of public safety incidents, construction permits, and commercial licenses across <strong>Las Vegas, Los Angeles, Seattle, and Phoenix</strong> — unified into standardized, predictable REST endpoints.
+                </p>
+
+                <div style="display: flex; gap: 14px; align-items: center; flex-wrap: wrap;">
+                    <a href="/dashboard" class="btn-stripe-primary" id="hero-dashboard-btn" style="font-size: 0.98rem; padding: 13px 26px;">
+                        <span>Open Stripe Dashboard</span> &rarr;
+                    </a>
+                    <a href="/docs" class="btn-stripe-secondary" id="hero-docs-btn" style="font-size: 0.98rem; padding: 13px 24px;">
+                        Read API Reference
+                    </a>
+                </div>
+
+                <div style="margin-top: 36px; display: flex; align-items: center; gap: 24px; color: var(--stripe-text-muted); font-size: 0.85rem;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="color: #00d924;">✓</span> Free 30 req/min tier
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="color: #00d924;">✓</span> Sub-20ms response time
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="color: #00d924;">✓</span> 99.9% Uptime SLA
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right: Stripe Split-Screen Code Terminal -->
+            <div>
+                <div class="stripe-code-card">
+                    <div class="stripe-code-header">
+                        <div class="stripe-lang-tabs">
+                            <button class="stripe-lang-tab active" data-lang="curl">cURL</button>
+                            <button class="stripe-lang-tab" data-lang="python">Python</button>
+                            <button class="stripe-lang-tab" data-lang="node">Node.js</button>
+                            <button class="stripe-lang-tab" data-lang="go">Go</button>
+                        </div>
+                        <div style="display: flex; gap: 6px; align-items: center;">
+                            <span class="stripe-status-pill stripe-status-200" style="font-size: 0.72rem;">200 OK</span>
+                            <button class="btn-stripe-secondary copy-btn" data-clipboard-target="#stripe-code-content" style="padding: 3px 8px; font-size: 0.75rem;">Copy</button>
+                        </div>
+                    </div>
+                    <pre class="code-block" id="stripe-code-content" style="padding: 20px; margin: 0; min-height: 250px; font-size: 0.85rem; line-height: 1.6; background: #070b14;">curl -X GET "https://api.argus.dev/api/v1/incidents?city=all&category=Property+Crime" \
+  -H "X-API-Key: argus_live_7x89q2m10k4..." \
+  -H "Accept: application/json"</pre>
+                    <div style="background: #0d1527; padding: 12px 20px; border-top: 1px solid rgba(255,255,255,0.06); display: flex; justify-content: space-between; align-items: center;">
+                        <div style="font-family: var(--font-code); font-size: 0.78rem; color: #a5b4fc;">
+                            ⚡ Latency: <span style="color: #00d4ff;">14.2 ms</span> (Cached at Edge)
+                        </div>
+                        <a href="/playground" style="font-size: 0.8rem; color: #00d4ff; text-decoration: none; font-weight: 600;">Launch in Workbench &rarr;</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Municipalities Supported (Stripe Style) -->
+<div class="container" style="margin-top: 60px;">
+    <div style="text-align: center; max-width: 640px; margin: 0 auto 40px;">
+        <h2 style="font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 10px;">
+            One API. Four municipal ecosystems.
+        </h2>
+        <p style="color: var(--stripe-text-secondary); font-size: 1.05rem;">
+            No need to build individual scrapers or negotiate incompatible data formats. Argus normalizes city feeds into unified JSON contracts.
+        </p>
+    </div>
+
+    <div class="city-grid">
+        <!-- Las Vegas -->
+        <div class="city-card vegas" id="city-vegas-card">
+            <div class="city-card-header">
+                <div>
+                    <div class="city-title">Las Vegas, NV</div>
+                    <div class="city-meta">Clark County & City of Las Vegas</div>
+                </div>
+                <span class="city-portal-badge">ArcGIS REST</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Source Feed</span>
+                <span class="city-stat-val">LVMPD Calls for Service</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Datasets</span>
+                <span class="city-stat-val">Police CFS & Permits</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Status</span>
+                <span class="stripe-status-pill stripe-status-200">Online</span>
+            </div>
+        </div>
+
+        <!-- Los Angeles -->
+        <div class="city-card la" id="city-la-card">
+            <div class="city-card-header">
+                <div>
+                    <div class="city-title">Los Angeles, CA</div>
+                    <div class="city-meta">DataLA Open Portal</div>
+                </div>
+                <span class="city-portal-badge">Socrata SODA</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Source Feed</span>
+                <span class="city-stat-val">LAPD & Building Safety</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Datasets</span>
+                <span class="city-stat-val">2.4M+ Crimes, Active Biz</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Status</span>
+                <span class="stripe-status-pill stripe-status-200">Online</span>
+            </div>
+        </div>
+
+        <!-- Seattle -->
+        <div class="city-card seattle" id="city-seattle-card">
+            <div class="city-card-header">
+                <div>
+                    <div class="city-title">Seattle, WA</div>
+                    <div class="city-meta">Seattle Open Data Portal</div>
+                </div>
+                <span class="city-portal-badge">Socrata SODA</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Source Feed</span>
+                <span class="city-stat-val">SPD & Real-Time Fire 911</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Datasets</span>
+                <span class="city-stat-val">1.1M+ Incidents, Permits</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Status</span>
+                <span class="stripe-status-pill stripe-status-200">Online</span>
+            </div>
+        </div>
+
+        <!-- Phoenix -->
+        <div class="city-card phoenix" id="city-phoenix-card">
+            <div class="city-card-header">
+                <div>
+                    <div class="city-title">Phoenix, AZ</div>
+                    <div class="city-meta">Phoenix Open Data Portal</div>
+                </div>
+                <span class="city-portal-badge">CKAN Datastore</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Source Feed</span>
+                <span class="city-stat-val">Phx Police Calls & Planning</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Datasets</span>
+                <span class="city-stat-val">1.9M+ Calls for Service</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Status</span>
+                <span class="stripe-status-pill stripe-status-200">Online</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stripe Feature Cards -->
+<section class="container" style="margin: 80px auto;">
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h2 style="font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px;">
+            The complete developer toolchain
+        </h2>
+        <p style="color: var(--stripe-text-secondary); font-size: 1.05rem;">
+            Designed from the ground up for high reliability, predictable latency, and effortless integration.
+        </p>
+    </div>
+
+    <div class="feature-grid">
+        <div class="feature-card" style="border-top: 3px solid #635bff;">
+            <div class="feature-icon" style="background: rgba(99, 91, 255, 0.15); color: #635bff;">⚡</div>
+            <h3>Intelligent Edge Caching</h3>
+            <p>Shield your application from sluggish city portals. In-memory TTL caching serves warm requests in under 20 milliseconds.</p>
+        </div>
+
+        <div class="feature-card" style="border-top: 3px solid #00d4ff;">
+            <div class="feature-icon" style="background: rgba(0, 212, 255, 0.15); color: #00d4ff;">🛡️</div>
+            <h3>Stripe-Grade Rate Limiting</h3>
+            <p>Sliding-window token bucket limits enforce per-tier quotas and return standard RFC headers: <code>X-RateLimit-Remaining</code> and <code>X-RateLimit-Reset</code>.</p>
+        </div>
+
+        <div class="feature-card" style="border-top: 3px solid #00d924;">
+            <div class="feature-icon" style="background: rgba(0, 217, 36, 0.15); color: #00d924;">🔍</div>
+            <h3>Live Request Inspector</h3>
+            <p>Debug API calls in real time. Inspect exact HTTP headers, query strings, and response payloads directly in the Stripe Dashboard.</p>
+        </div>
+    </div>
+</section>
+
+<!-- Stripe Tier Comparison -->
+<section class="container" style="margin-bottom: 80px;">
+    <div style="text-align: center; margin-bottom: 40px;">
+        <h2 style="font-size: 2rem; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 8px;">
+            Transparent, developer-friendly plans
+        </h2>
+        <p style="color: var(--stripe-text-secondary); font-size: 1.05rem;">
+            Start for free in seconds. Upgrade seamlessly as your application scales.
+        </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px;">
+        <!-- Free Tier -->
+        <div class="card" style="padding: 32px; border-color: rgba(255,255,255,0.08); background: #0c121e;">
+            <div style="font-size: 0.85rem; font-weight: 700; color: #a5b4fc; text-transform: uppercase; margin-bottom: 8px;">Explorer</div>
+            <div style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 16px;">$0 <span style="font-size: 0.9rem; font-weight: 400; color: var(--stripe-text-muted);">/ month</span></div>
+            <p style="color: var(--stripe-text-secondary); font-size: 0.9rem; margin-bottom: 24px;">Perfect for testing, prototyping, and civic tech projects.</p>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem; color: var(--stripe-text-secondary); margin-bottom: 30px;">
+                <li>✓ 30 requests / minute quota</li>
+                <li>✓ All 4 city municipal gateways</li>
+                <li>✓ Developer Dashboard access</li>
+                <li>✓ Community support</li>
+            </ul>
+            <a href="/dashboard/keys" class="btn-stripe-secondary" style="width: 100%; justify-content: center;">Get Free Key</a>
+        </div>
+
+        <!-- Developer Pro -->
+        <div class="card" style="padding: 32px; border: 2px solid #635bff; background: #0f172a; position: relative; box-shadow: 0 10px 30px rgba(99, 91, 255, 0.2);">
+            <span class="badge" style="position: absolute; top: -12px; right: 24px; background: #635bff; color: #fff;">MOST POPULAR</span>
+            <div style="font-size: 0.85rem; font-weight: 700; color: #00d4ff; text-transform: uppercase; margin-bottom: 8px;">Developer Pro</div>
+            <div style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 16px;">$49 <span style="font-size: 0.9rem; font-weight: 400; color: var(--stripe-text-muted);">/ month</span></div>
+            <p style="color: var(--stripe-text-secondary); font-size: 0.9rem; margin-bottom: 24px;">For production applications, proptech platforms, and analytics dashboards.</p>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem; color: var(--stripe-text-secondary); margin-bottom: 30px;">
+                <li>✓ 120 requests / minute quota</li>
+                <li>✓ Cross-city multi-aggregation</li>
+                <li>✓ Real-time Request Inspector</li>
+                <li>✓ Priority edge caching</li>
+            </ul>
+            <a href="/dashboard/keys" class="btn-stripe-primary" style="width: 100%; justify-content: center;">Start Pro Trial</a>
+        </div>
+
+        <!-- Enterprise Scale -->
+        <div class="card" style="padding: 32px; border-color: rgba(255,255,255,0.08); background: #0c121e;">
+            <div style="font-size: 0.85rem; font-weight: 700; color: #34d399; text-transform: uppercase; margin-bottom: 8px;">Enterprise</div>
+            <div style="font-size: 2.2rem; font-weight: 800; color: #fff; margin-bottom: 16px;">$299 <span style="font-size: 0.9rem; font-weight: 400; color: var(--stripe-text-muted);">/ month</span></div>
+            <p style="color: var(--stripe-text-secondary); font-size: 0.9rem; margin-bottom: 24px;">For high-volume ETL pipelines, insurance models, and municipal consulting.</p>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px; font-size: 0.9rem; color: var(--stripe-text-secondary); margin-bottom: 30px;">
+                <li>✓ 600 requests / minute quota</li>
+                <li>✓ Custom webhook triggers</li>
+                <li>✓ 99.9% Uptime SLA guarantee</li>
+                <li>✓ Dedicated technical support</li>
+            </ul>
+            <a href="/dashboard/keys" class="btn-stripe-secondary" style="width: 100%; justify-content: center;">Contact Sales</a>
+        </div>
+    </div>
+</section>
+
+<style>
+@media (max-width: 900px) {
+    .hero-split-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+</style>
+{% endblock %}

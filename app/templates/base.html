@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Argus API | Municipal Government Open Data Platform{% endblock %}</title>
+    <meta name="description" content="Unified REST API product for municipal government open data across Las Vegas, Los Angeles, Seattle, and Phoenix. Standardized schemas for public safety, permits, and business licenses.">
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/stripe.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
+</head>
+<body>
+    <!-- Stripe-Style Platform Navbar -->
+    <header class="navbar">
+        <div class="container nav-inner">
+            <a href="/" class="brand" id="nav-brand-logo">
+                <div class="brand-icon" style="background: linear-gradient(135deg, #635bff, #00d4ff);">AR</div>
+                <span>Argus <span class="brand-badge" style="background: rgba(99,91,255,0.15); border-color: rgba(99,91,255,0.3); color: #a5b4fc;">Platform</span></span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="/" class="{% if request.path == '/' %}active{% endif %}" id="nav-home">Home</a></li>
+                <li><a href="/docs" class="{% if request.path == '/docs' %}active{% endif %}" id="nav-docs">Documentation</a></li>
+                <li><a href="/playground" class="{% if request.path == '/playground' %}active{% endif %}" id="nav-playground">Playground</a></li>
+                <li><a href="/status" class="{% if request.path == '/status' %}active{% endif %}" id="nav-status">System Status</a></li>
+                <li><a href="/dashboard/keys" id="nav-keys">API Keys</a></li>
+            </ul>
+            <div class="nav-actions">
+                {% if current_user %}
+                    <div style="display: flex; align-items: center; gap: 12px;">
+                        <a href="/dashboard" style="display: flex; align-items: center; gap: 8px; text-decoration: none;" id="nav-user-profile">
+                            <div style="width: 28px; height: 28px; border-radius: 50%; background: linear-gradient(135deg, #635bff, #00d4ff); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.78rem;">
+                                {{ current_user.name[:1] | upper }}
+                            </div>
+                            <span style="font-size: 0.85rem; font-weight: 600; color: #fff;">{{ current_user.name.split(' ')[0] }}</span>
+                        </a>
+                        <a href="/dashboard" class="btn-stripe-primary btn-sm" id="nav-dashboard-btn" style="font-size: 0.82rem; padding: 6px 14px;">
+                            <span>Dashboard</span> &rarr;
+                        </a>
+                        <a href="/logout" class="btn-stripe-secondary" id="nav-logout-btn" style="font-size: 0.78rem; padding: 5px 10px; color: var(--stripe-text-secondary);" title="Sign out of developer account">
+                            Logout
+                        </a>
+                    </div>
+                {% else %}
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <a href="/login" class="btn-stripe-secondary" id="nav-login-btn" style="padding: 6px 14px; font-size: 0.84rem;">Sign In</a>
+                        <a href="/signup" class="btn-stripe-primary btn-sm" id="nav-signup-btn" style="font-size: 0.84rem; padding: 6px 14px;">
+                            <span>Get Keys</span> &rarr;
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </header>
+
+    <!-- Global Flash Alerts (for views not overriding content) -->
+    {% if not (request.path in ['/login', '/signup']) %}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div class="container" style="margin-top: 16px;">
+                    {% for category, message in messages %}
+                        <div style="padding: 10px 16px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 8px; display: flex; align-items: center; gap: 10px;
+                            {% if category == 'error' %}
+                                background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5;
+                            {% elif category == 'success' %}
+                                background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #6ee7b7;
+                            {% else %}
+                                background: rgba(99, 91, 255, 0.12); border: 1px solid rgba(99, 91, 255, 0.3); color: #c7d2fe;
+                            {% endif %}">
+                            <span>{% if category == 'error' %}⚠️{% elif category == 'success' %}✅{% else %}ℹ️{% endif %}</span>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+    {% endif %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container footer-inner">
+            <div>
+                <p><strong>Argus Platform</strong> &copy; 2026. Unified Municipal Government Data Infrastructure.</p>
+                <p style="margin-top: 4px; font-size: 0.8rem;">Real-time SODA, CKAN, and ArcGIS connectors across Las Vegas, Los Angeles, Seattle, and Phoenix.</p>
+            </div>
+            <ul class="footer-links">
+                <li><a href="/dashboard">Dashboard</a></li>
+                <li><a href="/dashboard/logs">Request Logs</a></li>
+                <li><a href="/docs">API Reference</a></li>
+                <li><a href="/status">Health Status</a></li>
+                <li><a href="/dashboard/keys">API Keys</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/stripe_dashboard.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

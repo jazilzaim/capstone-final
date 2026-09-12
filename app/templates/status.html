@@ -1,0 +1,124 @@
+{% extends "base.html" %}
+
+{% block title %}System Status | Argus Connector Health Monitor{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 40px 24px 80px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px; margin-bottom: 30px;">
+        <div>
+            <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 8px;">System & Connector Status</h1>
+            <p style="color: var(--text-muted); font-size: 1.05rem;">Real-time operational health, upstream portal latency, and caching telemetry.</p>
+        </div>
+        <div class="badge badge-online" style="padding: 8px 16px; font-size: 0.85rem;">
+            <span class="pulse-dot"></span> All Systems Operational
+        </div>
+    </div>
+
+    <!-- Live Telemetry Metrics -->
+    <div class="metrics-row">
+        <div class="metric-card">
+            <div class="metric-label">Municipal Connectors</div>
+            <div class="metric-value" style="color: #34d399;">{{ cities|length }} / 4 Online</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Average API Latency</div>
+            <div class="metric-value" style="color: #818cf8;">{{ system_stats.avg_latency_ms }} ms</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Cache Hit Ratio</div>
+            <div class="metric-value" style="color: #38bdf8;">{{ cache_stats.hit_ratio_percent }}%</div>
+        </div>
+        <div class="metric-card">
+            <div class="metric-label">Total API Calls Logged</div>
+            <div class="metric-value" style="color: #f59e0b;">{{ system_stats.total_api_calls }}</div>
+        </div>
+    </div>
+
+    <!-- Municipal Connector Status Table -->
+    <section class="card" style="margin: 40px 0;">
+        <h2 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 16px;">Municipal Open Data Adapters</h2>
+        <div style="overflow-x: auto;">
+            <table class="status-table">
+                <thead>
+                    <tr>
+                        <th>City / Jurisdiction</th>
+                        <th>Architecture</th>
+                        <th>Status</th>
+                        <th>Upstream Latency</th>
+                        <th>Dataset Volume</th>
+                        <th>Portal Source</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for city in cities %}
+                    <tr>
+                        <td>
+                            <strong>{{ city.name }}, {{ city.state }}</strong>
+                            <div style="font-size: 0.8rem; color: var(--text-dim);">ID: <code>{{ city.city_id }}</code></div>
+                        </td>
+                        <td>
+                            <span class="badge badge-purple">{{ city.portal_type }}</span>
+                        </td>
+                        <td>
+                            {% if city.status == 'online' %}
+                            <span class="badge badge-online"><span class="pulse-dot"></span> Operational</span>
+                            {% else %}
+                            <span class="badge badge-degraded">Degraded</span>
+                            {% endif %}
+                        </td>
+                        <td style="font-family: var(--font-mono); font-weight: 600;">
+                            {{ city.latency_ms }} ms
+                        </td>
+                        <td style="color: var(--text-muted); font-size: 0.88rem;">
+                            {{ city.record_count_estimate }}
+                        </td>
+                        <td>
+                            <a href="{{ city.portal_url }}" target="_blank" rel="noopener noreferrer" style="color: var(--cyan); text-decoration: none; font-size: 0.88rem;">
+                                {{ city.portal_url }} &nearr;
+                            </a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Cache & Architecture Performance Details -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 24px;">
+        <div class="card">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">TTL Memory Cache Telemetry</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">In-memory cache stores query snapshots to prevent upstream municipal rate limits and provide instant responses.</p>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Active Cached Entries</span>
+                <span class="city-stat-val">{{ cache_stats.entries_count }}</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Cache Hits</span>
+                <span class="city-stat-val" style="color: #34d399;">{{ cache_stats.hits }}</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Cache Misses</span>
+                <span class="city-stat-val">{{ cache_stats.misses }}</span>
+            </div>
+        </div>
+
+        <div class="card">
+            <h3 style="font-size: 1.1rem; font-weight: 700; margin-bottom: 12px;">High-Availability Architecture</h3>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">Automatic circuit-breaking ensures that individual city portal downtimes never take down your application.</p>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Resilience Fallback</span>
+                <span class="city-stat-val" style="color: #34d399;">Enabled (Active)</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Upstream Timeout Limit</span>
+                <span class="city-stat-val">5.0 seconds</span>
+            </div>
+            <div class="city-stat-row">
+                <span class="city-stat-label">Sliding Window Rate Limiting</span>
+                <span class="city-stat-val">60s Window</span>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

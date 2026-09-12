@@ -1,0 +1,667 @@
+/* Argus API - Stripe-Inspired Design System & Dashboard Layout */
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+
+:root {
+  /* Stripe Signature Palette */
+  --stripe-canvas: #0a2540;
+  --stripe-dark-bg: #080c14;
+  --stripe-card-bg: #101726;
+  --stripe-card-border: rgba(255, 255, 255, 0.08);
+  --stripe-sidebar: #0d131f;
+  
+  --stripe-indigo: #635bff;
+  --stripe-indigo-hover: #5851ea;
+  --stripe-indigo-light: #7a73ff;
+  --stripe-indigo-glow: rgba(99, 91, 255, 0.35);
+  
+  --stripe-cyan: #00d4ff;
+  --stripe-coral: #ff7062;
+  --stripe-amber: #df8f00;
+  --stripe-emerald: #00d924;
+  
+  --stripe-text-primary: #ffffff;
+  --stripe-text-secondary: #adbdcc;
+  --stripe-text-muted: #6b7c93;
+  --stripe-border-subtle: rgba(255, 255, 255, 0.08);
+  
+  --font-stripe: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-code: 'JetBrains Mono', monospace;
+}
+
+/* Radiant Animated Gradient Mesh (Stripe Signature Hero) */
+.stripe-hero-mesh {
+  position: relative;
+  overflow: hidden;
+  background-color: #060911;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(99, 91, 255, 0.35) 0px, transparent 50%),
+    radial-gradient(at 100% 0%, rgba(0, 212, 255, 0.25) 0px, transparent 50%),
+    radial-gradient(at 50% 50%, rgba(255, 112, 98, 0.2) 0px, transparent 60%),
+    radial-gradient(at 80% 100%, rgba(122, 115, 255, 0.25) 0px, transparent 50%),
+    radial-gradient(at 0% 100%, rgba(0, 217, 36, 0.15) 0px, transparent 50%);
+  background-size: 160% 160%;
+  animation: stripeMeshFlow 18s ease-in-out infinite alternate;
+}
+
+@keyframes stripeMeshFlow {
+  0% { background-position: 0% 0%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 50% 100%; }
+}
+
+/* Stripe Angle Ribbon Divider */
+.stripe-angle-divider {
+  position: relative;
+  height: 90px;
+  background: transparent;
+  transform: skewY(-3deg);
+  transform-origin: top left;
+  margin-top: -45px;
+  margin-bottom: 45px;
+  z-index: 1;
+}
+
+/* Stripe Buttons */
+.btn-stripe-primary {
+  background: var(--stripe-indigo);
+  color: #ffffff;
+  font-family: var(--font-stripe);
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 11px 22px;
+  box-shadow: 0 4px 14px var(--stripe-indigo-glow);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  cursor: pointer;
+}
+
+.btn-stripe-primary:hover {
+  background: var(--stripe-indigo-hover);
+  box-shadow: 0 6px 20px rgba(99, 91, 255, 0.5);
+  transform: translateY(-1px);
+  color: #ffffff;
+}
+
+.btn-stripe-secondary {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  font-family: var(--font-stripe);
+  font-weight: 600;
+  border-radius: 999px;
+  padding: 11px 22px;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(10px);
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.btn-stripe-secondary:hover {
+  background: rgba(255, 255, 255, 0.14);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: translateY(-1px);
+  color: #ffffff;
+}
+
+/* Stripe Split-Screen Code Terminal */
+.stripe-code-card {
+  background: #090e1a;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.7), 0 0 30px rgba(99, 91, 255, 0.15);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.stripe-code-header {
+  background: #0d1527;
+  padding: 12px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.stripe-lang-tabs {
+  display: flex;
+  gap: 6px;
+}
+
+.stripe-lang-tab {
+  padding: 5px 12px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--stripe-text-muted);
+  cursor: pointer;
+  background: transparent;
+  border: none;
+  transition: all 0.15s;
+}
+
+.stripe-lang-tab:hover {
+  color: var(--stripe-text-primary);
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.stripe-lang-tab.active {
+  color: #ffffff;
+  background: rgba(99, 91, 255, 0.25);
+  border: 1px solid rgba(99, 91, 255, 0.4);
+}
+
+/* =======================================================
+   STRIPE DASHBOARD LAYOUT
+   ======================================================= */
+
+.stripe-dashboard {
+  display: flex;
+  min-height: 100vh;
+  background: var(--stripe-dark-bg);
+  font-family: var(--font-stripe);
+  color: var(--stripe-text-primary);
+}
+
+/* Dashboard Sidebar */
+.stripe-sidebar {
+  width: 250px;
+  background: var(--stripe-sidebar);
+  border-right: 1px solid var(--stripe-border-subtle);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  z-index: 50;
+}
+
+.stripe-sidebar-header {
+  padding: 20px 20px 16px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  border-bottom: 1px solid var(--stripe-border-subtle);
+}
+
+.stripe-sidebar-brand {
+  font-weight: 800;
+  font-size: 1.15rem;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  text-decoration: none;
+}
+
+.stripe-org-badge {
+  font-size: 0.7rem;
+  padding: 2px 8px;
+  background: rgba(255, 255, 255, 0.08);
+  border-radius: 4px;
+  color: var(--stripe-text-secondary);
+}
+
+.stripe-sidebar-nav {
+  padding: 16px 12px;
+  flex: 1;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stripe-nav-group-title {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: var(--stripe-text-muted);
+  padding: 12px 12px 6px;
+  font-weight: 700;
+}
+
+.stripe-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 9px 12px;
+  border-radius: 8px;
+  color: var(--stripe-text-secondary);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: all 0.15s ease;
+}
+
+.stripe-nav-item:hover {
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffffff;
+}
+
+.stripe-nav-item.active {
+  background: rgba(99, 91, 255, 0.18);
+  color: #a5b4fc;
+  font-weight: 600;
+  border: 1px solid rgba(99, 91, 255, 0.3);
+}
+
+.stripe-nav-icon {
+  width: 18px;
+  height: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  opacity: 0.8;
+}
+
+.stripe-sidebar-footer {
+  padding: 16px;
+  border-top: 1px solid var(--stripe-border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+/* Dashboard Main Content Area */
+.stripe-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-x: hidden;
+}
+
+/* Dashboard Topbar */
+.stripe-topbar {
+  height: 60px;
+  background: rgba(13, 19, 31, 0.8);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--stripe-border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 28px;
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.stripe-search-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--stripe-border-subtle);
+  border-radius: 8px;
+  padding: 7px 14px;
+  color: var(--stripe-text-secondary);
+  font-size: 0.88rem;
+  width: 320px;
+}
+
+.stripe-search-bar input {
+  background: transparent;
+  border: none;
+  outline: none;
+  color: #ffffff;
+  font-size: 0.88rem;
+  width: 100%;
+}
+
+.stripe-kbd {
+  font-family: var(--font-code);
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--stripe-text-muted);
+}
+
+/* Stripe Iconic Test Mode Switch */
+.stripe-testmode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: rgba(223, 143, 0, 0.1);
+  border: 1px solid rgba(223, 143, 0, 0.25);
+  padding: 4px 12px;
+  border-radius: 999px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.stripe-testmode-toggle.live {
+  background: rgba(0, 217, 36, 0.1);
+  border-color: rgba(0, 217, 36, 0.25);
+}
+
+.stripe-testmode-switch {
+  position: relative;
+  width: 32px;
+  height: 18px;
+  background: rgba(223, 143, 0, 0.4);
+  border-radius: 999px;
+  transition: background 0.2s;
+}
+
+.stripe-testmode-toggle.live .stripe-testmode-switch {
+  background: rgba(0, 217, 36, 0.4);
+}
+
+.stripe-testmode-knob {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 14px;
+  height: 14px;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: transform 0.2s;
+}
+
+.stripe-testmode-toggle.live .stripe-testmode-knob {
+  transform: translateX(14px);
+}
+
+.stripe-testmode-label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #fbbf24;
+  letter-spacing: 0.4px;
+}
+
+.stripe-testmode-toggle.live .stripe-testmode-label {
+  color: #34d399;
+}
+
+/* Dashboard Body Container */
+.stripe-body {
+  padding: 32px 36px 60px;
+  max-width: 1400px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+/* KPI Cards */
+.stripe-kpi-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stripe-kpi-card {
+  background: var(--stripe-card-bg);
+  border: 1px solid var(--stripe-card-border);
+  border-radius: 12px;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25);
+}
+
+.stripe-kpi-label {
+  font-size: 0.82rem;
+  color: var(--stripe-text-muted);
+  font-weight: 600;
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.stripe-kpi-val {
+  font-size: 2rem;
+  font-weight: 800;
+  color: #ffffff;
+  font-family: var(--font-stripe);
+  line-height: 1.1;
+  margin-bottom: 8px;
+}
+
+.stripe-kpi-trend {
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.stripe-trend-up { color: #34d399; }
+.stripe-trend-neutral { color: var(--stripe-text-muted); }
+
+/* Stripe Request Logs Table */
+.stripe-table-container {
+  background: var(--stripe-card-bg);
+  border: 1px solid var(--stripe-card-border);
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 30px;
+}
+
+.stripe-table-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--stripe-card-border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.stripe-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.stripe-table th {
+  text-align: left;
+  padding: 12px 18px;
+  background: rgba(0, 0, 0, 0.2);
+  color: var(--stripe-text-muted);
+  font-weight: 600;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid var(--stripe-card-border);
+}
+
+.stripe-table td {
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+  color: var(--stripe-text-secondary);
+  vertical-align: middle;
+}
+
+.stripe-table tr.clickable-row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.stripe-table tr.clickable-row:hover td {
+  background: rgba(255, 255, 255, 0.03);
+  color: #ffffff;
+}
+
+/* Stripe Status Pills & Method Badges */
+.stripe-status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  font-family: var(--font-code);
+}
+
+.stripe-status-200 {
+  background: rgba(0, 217, 36, 0.12);
+  color: #00d924;
+  border: 1px solid rgba(0, 217, 36, 0.3);
+}
+
+.stripe-status-401 {
+  background: rgba(255, 112, 98, 0.12);
+  color: #ff7062;
+  border: 1px solid rgba(255, 112, 98, 0.3);
+}
+
+.stripe-status-429 {
+  background: rgba(223, 143, 0, 0.12);
+  color: #df8f00;
+  border: 1px solid rgba(223, 143, 0, 0.3);
+}
+
+.stripe-method-badge {
+  font-size: 0.75rem;
+  font-weight: 700;
+  font-family: var(--font-code);
+  padding: 2px 7px;
+  border-radius: 4px;
+  background: rgba(99, 91, 255, 0.15);
+  color: #a5b4fc;
+}
+
+/* =======================================================
+   STRIPE REQUEST INSPECTOR DRAWER (Slide-over panel)
+   ======================================================= */
+.stripe-drawer-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  z-index: 999;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.25s ease;
+}
+
+.stripe-drawer-overlay.open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.stripe-drawer {
+  position: fixed;
+  top: 0;
+  right: -580px;
+  bottom: 0;
+  width: 560px;
+  max-width: 90vw;
+  background: #0d1422;
+  border-left: 1px solid var(--stripe-border-subtle);
+  box-shadow: -20px 0 50px rgba(0, 0, 0, 0.8);
+  z-index: 1000;
+  display: flex;
+  flex-direction: column;
+  transition: right 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stripe-drawer.open {
+  right: 0;
+}
+
+.stripe-drawer-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--stripe-border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #090e18;
+}
+
+.stripe-drawer-close {
+  background: transparent;
+  border: none;
+  color: var(--stripe-text-muted);
+  font-size: 1.4rem;
+  cursor: pointer;
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.stripe-drawer-close:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+}
+
+.stripe-drawer-body {
+  flex: 1;
+  overflow-y: auto;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.stripe-inspect-section {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid var(--stripe-border-subtle);
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.stripe-inspect-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--stripe-text-muted);
+  margin-bottom: 10px;
+}
+
+/* =======================================================
+   STRIPE 3-COLUMN DOCUMENTATION LAYOUT
+   ======================================================= */
+.stripe-docs-container {
+  display: grid;
+  grid-template-columns: 240px 1fr 480px;
+  gap: 32px;
+  max-width: 1540px;
+  margin: 0 auto;
+  padding: 40px 28px;
+}
+
+@media (max-width: 1200px) {
+  .stripe-docs-container {
+    grid-template-columns: 220px 1fr;
+  }
+  .stripe-docs-code-pane {
+    display: none;
+  }
+}
+
+@media (max-width: 800px) {
+  .stripe-docs-container {
+    grid-template-columns: 1fr;
+  }
+}
+
+.stripe-docs-nav {
+  position: sticky;
+  top: 90px;
+  height: fit-content;
+  max-height: calc(100vh - 120px);
+  overflow-y: auto;
+}
+
+.stripe-docs-code-pane {
+  position: sticky;
+  top: 90px;
+  height: fit-content;
+  max-height: calc(100vh - 120px);
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}

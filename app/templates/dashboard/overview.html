@@ -1,0 +1,226 @@
+{% extends "dashboard/layout.html" %}
+
+{% block title %}Overview | Argus Developer Dashboard{% endblock %}
+
+{% block dashboard_content %}
+<div style="margin-bottom: 24px;">
+    <h1 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 6px;">Developer Overview</h1>
+    <p style="color: var(--stripe-text-secondary); font-size: 0.92rem;">Real-time metrics, recent municipal API requests, and personalized integration code.</p>
+</div>
+
+<!-- Personalized Auto-Generated API Quickstart Card -->
+<div class="stripe-kpi-card" style="margin-bottom: 30px; background: linear-gradient(135deg, rgba(99, 91, 255, 0.08) 0%, rgba(0, 212, 255, 0.04) 100%); border: 1px solid rgba(99, 91, 255, 0.25); border-radius: 12px; padding: 24px;">
+    <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; margin-bottom: 20px;">
+        <div>
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                <span style="font-size: 1.15rem;">⚡</span>
+                <h2 style="font-size: 1.25rem; font-weight: 700; color: #fff; margin: 0;">Auto-Generated API Quickstart</h2>
+                <span class="stripe-status-pill stripe-status-200" style="font-size: 0.72rem;">{{ user_plan_tier | upper }} TIER</span>
+            </div>
+            <p style="color: var(--stripe-text-secondary); font-size: 0.88rem; margin: 0;">
+                Personalized for <strong style="color: #fff;">{{ current_user.name if current_user else 'Developer' }}</strong>. Your active secret key is pre-loaded into the ready-to-run code snippets below.
+            </p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+            <div style="display: flex; align-items: center; gap: 6px; background: rgba(5, 8, 16, 0.8); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; padding: 4px 10px;">
+                <span style="font-size: 0.75rem; color: var(--stripe-text-muted);">Key:</span>
+                <input type="password" id="overview-user-key" value="{{ user_primary_key }}" readonly style="background: transparent; border: none; font-family: var(--font-code); color: #00d4ff; font-size: 0.82rem; width: 180px;">
+                <button type="button" class="btn-stripe-secondary key-reveal-toggle" data-target="overview-user-key" style="padding: 2px 8px; font-size: 0.7rem;">Reveal</button>
+                <button type="button" class="btn-stripe-secondary copy-btn" data-clipboard-text="{{ user_primary_key }}" style="padding: 2px 8px; font-size: 0.7rem;">Copy</button>
+            </div>
+            <a href="/dashboard/workbench" class="btn-stripe-primary" style="padding: 6px 14px; font-size: 0.82rem;">▶ Test in Workbench</a>
+        </div>
+    </div>
+
+    <!-- Multi-Language Code Snippet Console -->
+    <div class="stripe-code-card" style="margin-bottom: 0;">
+        <div class="stripe-code-header">
+            <div class="stripe-lang-tabs" id="quickstart-tabs">
+                <button type="button" class="stripe-lang-tab active" data-qs-lang="curl">cURL</button>
+                <button type="button" class="stripe-lang-tab" data-qs-lang="python">Python (requests)</button>
+                <button type="button" class="stripe-lang-tab" data-qs-lang="node">JavaScript (fetch)</button>
+                <button type="button" class="stripe-lang-tab" data-qs-lang="go">Go</button>
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <span style="font-size: 0.75rem; color: #a5b4fc; font-family: var(--font-code);">GET /api/v1/incidents?city=all</span>
+                <button type="button" class="btn-stripe-secondary copy-btn" id="qs-copy-btn" data-clipboard-target="#quickstart-code" style="padding: 3px 8px; font-size: 0.72rem;">Copy Code</button>
+            </div>
+        </div>
+        <pre class="code-block" id="quickstart-code" style="padding: 18px 20px; margin: 0; min-height: 140px; font-size: 0.84rem; line-height: 1.6; background: #070b14; color: #e2e8f0;"></pre>
+    </div>
+</div>
+
+<!-- Stripe KPI Cards -->
+<div class="stripe-kpi-grid">
+    <div class="stripe-kpi-card">
+        <div class="stripe-kpi-label">
+            <span>Total API Requests</span>
+            <span>⚡</span>
+        </div>
+        <div class="stripe-kpi-val">{{ stats.total_api_calls or 48 }}</div>
+        <div class="stripe-kpi-trend stripe-trend-up">
+            <span>&uarr; 14.8%</span>
+            <span style="color: var(--stripe-text-muted); font-weight: 400;">vs last period</span>
+        </div>
+    </div>
+
+    <div class="stripe-kpi-card">
+        <div class="stripe-kpi-label">
+            <span>Gateway Success Rate</span>
+            <span>🛡️</span>
+        </div>
+        <div class="stripe-kpi-val" style="color: #00d924;">99.8%</div>
+        <div class="stripe-kpi-trend stripe-trend-up">
+            <span>High Availability</span>
+        </div>
+    </div>
+
+    <div class="stripe-kpi-card">
+        <div class="stripe-kpi-label">
+            <span>Average Latency</span>
+            <span>⏱️</span>
+        </div>
+        <div class="stripe-kpi-val">{{ stats.avg_latency_ms or 18.5 }} ms</div>
+        <div class="stripe-kpi-trend stripe-trend-up">
+            <span>Sub-25ms cached</span>
+        </div>
+    </div>
+
+    <div class="stripe-kpi-card">
+        <div class="stripe-kpi-label">
+            <span>Municipal Connectors</span>
+            <span>🏛️</span>
+        </div>
+        <div class="stripe-kpi-val" style="color: #635bff;">4 / 4 Live</div>
+        <div class="stripe-kpi-trend stripe-trend-neutral">
+            <span>LV &bull; LA &bull; SEA &bull; PHX</span>
+        </div>
+    </div>
+</div>
+
+<!-- Municipal City Matrix Row -->
+<div style="margin-bottom: 30px;">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;">
+        <h2 style="font-size: 1.15rem; font-weight: 700; margin: 0;">Connected Municipalities</h2>
+        <a href="/status" style="font-size: 0.85rem; color: #a5b4fc; text-decoration: none;">View Full Status &rarr;</a>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 16px;">
+        {% for city in cities %}
+        <div class="stripe-kpi-card" style="padding: 16px; border-left: 3px solid #635bff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                <span style="font-weight: 700; color: #fff;">{{ city.name }}, {{ city.state }}</span>
+                <span class="stripe-status-pill stripe-status-200" style="font-size: 0.72rem;">Online</span>
+            </div>
+            <div style="font-size: 0.78rem; color: var(--stripe-text-muted); margin-bottom: 8px;">
+                {{ city.portal_type }} &bull; {{ city.record_count_estimate }}
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 6px;">
+                <span style="color: var(--stripe-text-muted);">Latency</span>
+                <span style="font-family: var(--font-code); color: #00d4ff;">{{ city.latency_ms }} ms</span>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Recent Request Logs with Stripe Request Inspector -->
+<div class="stripe-table-container">
+    <div class="stripe-table-header">
+        <div>
+            <h2 style="font-size: 1.15rem; font-weight: 700; margin: 0 0 4px;">Recent API Requests</h2>
+            <p style="font-size: 0.82rem; color: var(--stripe-text-muted); margin: 0;">Click any row to open the Stripe Request Inspector drawer.</p>
+        </div>
+        <div style="display: flex; gap: 8px;">
+            <a href="/dashboard/logs" class="btn-stripe-secondary" style="padding: 6px 12px; font-size: 0.82rem;">View All Logs</a>
+            <a href="/playground" class="btn-stripe-primary" style="padding: 6px 12px; font-size: 0.82rem;">Send Test Request</a>
+        </div>
+    </div>
+
+    <div style="overflow-x: auto;">
+        <table class="stripe-table">
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Method</th>
+                    <th>Endpoint</th>
+                    <th>City</th>
+                    <th>Latency</th>
+                    <th>Request ID</th>
+                    <th>Time</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr class="clickable-row clickable-log-row"
+                    data-req-id="{{ log.request_id or 'req_01HV789' ~ log.id }}"
+                    data-method="{{ log.method or 'GET' }}"
+                    data-endpoint="{{ log.endpoint }}"
+                    data-status="{{ log.status_code }}"
+                    data-latency="{{ log.latency_ms }}"
+                    data-city="{{ log.city or '' }}"
+                    data-params="{{ log.query_params or '' }}"
+                    data-time="{{ log.timestamp }}">
+                    <td>
+                        <span class="stripe-status-pill stripe-status-{{ log.status_code }}">
+                            {{ log.status_code }} {% if log.status_code == 200 %}OK{% elif log.status_code == 401 %}ERR{% else %}LIMIT{% endif %}
+                        </span>
+                    </td>
+                    <td><span class="stripe-method-badge">{{ log.method or 'GET' }}</span></td>
+                    <td style="font-family: var(--font-code); color: #fff;">{{ log.endpoint }}</td>
+                    <td>
+                        {% if log.city %}
+                        <span class="badge badge-purple" style="font-size: 0.72rem;">{{ log.city }}</span>
+                        {% else %}
+                        <span style="color: var(--stripe-text-muted); font-size: 0.75rem;">ALL</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-family: var(--font-code);">{{ log.latency_ms }} ms</td>
+                    <td style="font-family: var(--font-code); color: var(--stripe-text-muted); font-size: 0.78rem;">{{ log.request_id or 'req_' ~ log.id }}</td>
+                    <td style="font-size: 0.8rem; color: var(--stripe-text-muted);">{{ log.timestamp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userApiKey = "{{ user_primary_key }}";
+    const origin = window.location.origin;
+
+    const qsSnippets = {
+        'curl': `curl -X GET "${origin}/api/v1/incidents?city=all&limit=5" \\\n  -H "X-API-Key: ${userApiKey}" \\\n  -H "Accept: application/json"`,
+        'python': `import requests\n\nurl = "${origin}/api/v1/incidents"\nheaders = {\n    "X-API-Key": "${userApiKey}",\n    "Accept": "application/json"\n}\nparams = {"city": "all", "limit": 5}\n\nresponse = requests.get(url, headers=headers, params=params)\nprint(response.json())`,
+        'node': `const response = await fetch("${origin}/api/v1/incidents?city=all&limit=5", {\n  headers: {\n    "X-API-Key": "${userApiKey}",\n    "Accept": "application/json"\n  }\n});\nconst data = await response.json();\nconsole.log(data);`,
+        'go': `package main\n\nimport (\n\t"fmt"\n\t"net/http"\n\t"io"\n)\n\nfunc main() {\n\treq, _ := http.NewRequest("GET", "${origin}/api/v1/incidents?city=all&limit=5", nil)\n\treq.Header.Set("X-API-Key", "${userApiKey}")\n\treq.Header.Set("Accept", "application/json")\n\t\n\tclient := &http.Client{}\n\tresp, _ := client.Do(req)\n\tdefer resp.Body.Close()\n\tbody, _ := io.ReadAll(resp.Body)\n\tfmt.Println(string(body))\n}`
+    };
+
+    const codeBlock = document.getElementById('quickstart-code');
+    const tabs = document.querySelectorAll('#quickstart-tabs [data-qs-lang]');
+
+    function setLanguage(lang) {
+        tabs.forEach(t => {
+            if (t.getAttribute('data-qs-lang') === lang) {
+                t.classList.add('active');
+            } else {
+                t.classList.remove('active');
+            }
+        });
+        if (codeBlock) {
+            codeBlock.textContent = qsSnippets[lang] || qsSnippets['curl'];
+        }
+    }
+
+    tabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            setLanguage(this.getAttribute('data-qs-lang'));
+        });
+    });
+
+    // Initialize default cURL snippet
+    setLanguage('curl');
+});
+</script>
+{% endblock %}

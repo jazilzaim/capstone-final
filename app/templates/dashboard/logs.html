@@ -1,0 +1,116 @@
+{% extends "dashboard/layout.html" %}
+
+{% block title %}Request Logs | Argus Developer Inspector{% endblock %}
+
+{% block dashboard_content %}
+<div style="margin-bottom: 24px; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 16px;">
+    <div>
+        <h1 style="font-size: 1.6rem; font-weight: 800; margin-bottom: 6px;">API Request Logs</h1>
+        <p style="color: var(--stripe-text-secondary); font-size: 0.92rem;">Audit trail of all HTTP calls to Argus endpoints. Click any row to inspect complete headers, query strings, and response payloads.</p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button class="btn-stripe-secondary" onclick="window.location.reload();" style="padding: 7px 14px; font-size: 0.85rem;">🔄 Refresh Stream</button>
+        <a href="/playground" class="btn-stripe-primary" style="padding: 7px 14px; font-size: 0.85rem;">+ Create Request</a>
+    </div>
+</div>
+
+<!-- Logs Filters Bar -->
+<div class="stripe-kpi-card" style="padding: 14px 20px; margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+    <div style="display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+        <span style="font-size: 0.82rem; color: var(--stripe-text-muted); font-weight: 600;">FILTER BY:</span>
+        <select class="form-control" style="padding: 6px 12px; font-size: 0.82rem; width: auto;" onchange="filterLogs(this.value, 'city')">
+            <option value="">All Municipalities</option>
+            <option value="las_vegas">Las Vegas, NV</option>
+            <option value="los_angeles">Los Angeles, CA</option>
+            <option value="seattle">Seattle, WA</option>
+            <option value="phoenix">Phoenix, AZ</option>
+        </select>
+        <select class="form-control" style="padding: 6px 12px; font-size: 0.82rem; width: auto;" onchange="filterLogs(this.value, 'status')">
+            <option value="">All Status Codes</option>
+            <option value="200">200 OK (Success)</option>
+            <option value="401">401 Unauthorized</option>
+            <option value="429">429 Rate Limited</option>
+        </select>
+    </div>
+    <div style="font-size: 0.82rem; color: var(--stripe-text-muted);">
+        Showing {{ logs|length }} recent events
+    </div>
+</div>
+
+<!-- Logs Table -->
+<div class="stripe-table-container">
+    <div style="overflow-x: auto;">
+        <table class="stripe-table" id="logs-table">
+            <thead>
+                <tr>
+                    <th>Status</th>
+                    <th>Method</th>
+                    <th>Path & Query</th>
+                    <th>City Target</th>
+                    <th>Latency</th>
+                    <th>API Key Hash</th>
+                    <th>Request ID</th>
+                    <th>Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in logs %}
+                <tr class="clickable-row clickable-log-row"
+                    data-req-id="{{ log.request_id or 'req_01HV789' ~ log.id }}"
+                    data-method="{{ log.method or 'GET' }}"
+                    data-endpoint="{{ log.endpoint }}"
+                    data-status="{{ log.status_code }}"
+                    data-latency="{{ log.latency_ms }}"
+                    data-city="{{ log.city or '' }}"
+                    data-params="{{ log.query_params or '' }}"
+                    data-time="{{ log.timestamp }}">
+                    <td>
+                        <span class="stripe-status-pill stripe-status-{{ log.status_code }}">
+                            {{ log.status_code }} {% if log.status_code == 200 %}OK{% elif log.status_code == 401 %}ERR{% else %}LIMIT{% endif %}
+                        </span>
+                    </td>
+                    <td><span class="stripe-method-badge">{{ log.method or 'GET' }}</span></td>
+                    <td style="font-family: var(--font-code); color: #fff;">
+                        {{ log.endpoint }}{% if log.query_params %}?{{ log.query_params }}{% endif %}
+                    </td>
+                    <td>
+                        {% if log.city %}
+                        <span class="badge badge-purple" style="font-size: 0.72rem;">{{ log.city }}</span>
+                        {% else %}
+                        <span style="color: var(--stripe-text-muted); font-size: 0.75rem;">ALL</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-family: var(--font-code); color: #00d4ff;">{{ log.latency_ms }} ms</td>
+                    <td style="font-family: var(--font-code); font-size: 0.78rem; color: var(--stripe-text-muted);">
+                        {{ log.key_prefix or 'anonymous' }}
+                    </td>
+                    <td style="font-family: var(--font-code); color: var(--stripe-text-muted); font-size: 0.78rem;">
+                        {{ log.request_id or 'req_' ~ log.id }}
+                    </td>
+                    <td style="font-size: 0.8rem; color: var(--stripe-text-muted);">{{ log.timestamp }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+function filterLogs(val, type) {
+    const rows = document.querySelectorAll('.clickable-log-row');
+    rows.forEach(r => {
+        if (!val) {
+            r.style.display = '';
+            return;
+        }
+        if (type === 'city') {
+            const rowCity = r.getAttribute('data-city') || '';
+            r.style.display = rowCity.toLowerCase().includes(val.toLowerCase()) ? '' : 'none';
+        } else if (type === 'status') {
+            const rowStatus = r.getAttribute('data-status') || '';
+            r.style.display = rowStatus === val ? '' : 'none';
+        }
+    });
+}
+</script>
+{% endblock %}

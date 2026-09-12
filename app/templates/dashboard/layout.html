@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Argus Dashboard | Municipal Government Open Data{% endblock %}</title>
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/stripe.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🏛️</text></svg>">
+</head>
+<body style="background: #080c14; margin: 0;">
+    <div class="stripe-dashboard">
+        <!-- Sidebar Navigation -->
+        <aside class="stripe-sidebar">
+            <div class="stripe-sidebar-header">
+                <a href="/" class="stripe-sidebar-brand" id="dashboard-logo">
+                    <div style="width: 28px; height: 28px; background: linear-gradient(135deg, #635bff, #00d4ff); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 0.9rem; color: #fff;">AR</div>
+                    <span>Argus</span>
+                </a>
+                <span class="stripe-org-badge">GovTech</span>
+            </div>
+
+            <nav class="stripe-sidebar-nav">
+                <div class="stripe-nav-group-title">Platform</div>
+                <a href="/dashboard" class="stripe-nav-item {% if request.path == '/dashboard' %}active{% endif %}" id="nav-dash-overview">
+                    <span class="stripe-nav-icon">📊</span>
+                    <span>Overview</span>
+                </a>
+                <a href="/dashboard/logs" class="stripe-nav-item {% if request.path == '/dashboard/logs' %}active{% endif %}" id="nav-dash-logs">
+                    <span class="stripe-nav-icon">⚡</span>
+                    <span>Request Logs</span>
+                </a>
+                <a href="/dashboard/workbench" class="stripe-nav-item {% if request.path == '/dashboard/workbench' %}active{% endif %}" id="nav-dash-workbench">
+                    <span class="stripe-nav-icon">🛠️</span>
+                    <span>Workbench</span>
+                </a>
+
+                <div class="stripe-nav-group-title">Developers</div>
+                <a href="/dashboard/keys" class="stripe-nav-item {% if request.path == '/dashboard/keys' %}active{% endif %}" id="nav-dash-keys">
+                    <span class="stripe-nav-icon">🔑</span>
+                    <span>API Keys & Quotas</span>
+                </a>
+                <a href="/status" class="stripe-nav-item" id="nav-dash-connectors">
+                    <span class="stripe-nav-icon">🏛️</span>
+                    <span>City Connectors</span>
+                </a>
+                <a href="/docs" class="stripe-nav-item" id="nav-dash-docs">
+                    <span class="stripe-nav-icon">📖</span>
+                    <span>Documentation</span>
+                </a>
+            </nav>
+
+            <div class="stripe-sidebar-footer">
+                <div style="display: flex; align-items: center; gap: 10px; min-width: 0; flex: 1;">
+                    <div style="width: 30px; height: 30px; border-radius: 50%; background: linear-gradient(135deg, #635bff, #00d4ff); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 0.85rem; flex-shrink: 0;">
+                        {% if current_user %}{{ current_user.name[:1] | upper }}{% else %}D{% endif %}
+                    </div>
+                    <div style="min-width: 0; overflow: hidden; text-overflow: ellipsis;">
+                        <div style="font-size: 0.82rem; font-weight: 600; color: #fff; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            {% if current_user %}{{ current_user.name }}{% else %}Dev Workspace{% endif %}
+                        </div>
+                        <div style="font-size: 0.7rem; color: var(--stripe-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                            {% if current_user %}{{ current_user.email }}{% else %}developer@argus.dev{% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <a href="/logout" title="Sign out" style="color: var(--stripe-text-muted); text-decoration: none; font-size: 0.8rem; padding: 4px 7px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.02);" id="sidebar-logout-btn">
+                        Sign Out
+                    </a>
+                    <a href="/" title="Back to Public Site" style="color: var(--stripe-text-muted); text-decoration: none; font-size: 1.1rem;">&rarr;</a>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Dashboard Content -->
+        <div class="stripe-main">
+            <!-- Topbar -->
+            <header class="stripe-topbar">
+                <div class="stripe-search-bar">
+                    <span>🔍</span>
+                    <input type="text" id="stripe-search-input" placeholder="Search requests, endpoints, docs...">
+                    <span class="stripe-kbd">Ctrl K</span>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 16px;">
+                    <!-- Stripe Test Mode Toggle -->
+                    <div class="stripe-testmode-toggle" id="stripe-testmode-toggle" title="Toggle between Mock Sandbox and Live Municipal Gateways">
+                        <span class="stripe-testmode-label">Test mode</span>
+                        <div class="stripe-testmode-switch">
+                            <div class="stripe-testmode-knob"></div>
+                        </div>
+                    </div>
+
+                    <a href="/docs" class="btn-stripe-secondary" style="padding: 6px 14px; font-size: 0.82rem;">API Reference</a>
+                    <a href="/playground" class="btn-stripe-primary" style="padding: 6px 14px; font-size: 0.82rem;">Run Query</a>
+                </div>
+            </header>
+
+            <!-- Body View -->
+            <div class="stripe-body">
+                <!-- Flash Messages inside Dashboard -->
+                {% with messages = get_flashed_messages(with_categories=true) %}
+                    {% if messages %}
+                        <div style="margin-bottom: 20px;">
+                            {% for category, message in messages %}
+                                <div style="padding: 10px 16px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 8px; display: flex; align-items: center; gap: 10px;
+                                    {% if category == 'error' %}
+                                        background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5;
+                                    {% elif category == 'success' %}
+                                        background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #6ee7b7;
+                                    {% else %}
+                                        background: rgba(99, 91, 255, 0.12); border: 1px solid rgba(99, 91, 255, 0.3); color: #c7d2fe;
+                                    {% endif %}">
+                                    <span>{% if category == 'error' %}⚠️{% elif category == 'success' %}✅{% else %}ℹ️{% endif %}</span>
+                                    <span>{{ message }}</span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                {% endwith %}
+
+                {% block dashboard_content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Slide-over Request Inspector Drawer -->
+    <div class="stripe-drawer-overlay" id="drawer-overlay"></div>
+    <aside class="stripe-drawer" id="request-drawer">
+        <div class="stripe-drawer-header">
+            <div>
+                <div style="font-size: 0.72rem; text-transform: uppercase; color: var(--stripe-text-muted); letter-spacing: 0.5px;">API Request Inspector</div>
+                <div style="font-family: var(--font-code); font-weight: 700; color: #fff; font-size: 1.05rem;" id="drawer-req-id">req_01HV789A</div>
+            </div>
+            <button class="stripe-drawer-close" id="drawer-close-btn">&times;</button>
+        </div>
+
+        <div class="stripe-drawer-body">
+            <!-- Summary Badges -->
+            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                <span class="stripe-method-badge" id="drawer-method">GET</span>
+                <span class="stripe-status-pill stripe-status-200" id="drawer-status">200 OK</span>
+                <span style="font-family: var(--font-code); font-size: 0.82rem; color: var(--stripe-text-secondary);" id="drawer-latency">14.2 ms</span>
+                <span class="badge badge-purple" id="drawer-city">LAS VEGAS</span>
+                <span style="font-size: 0.78rem; color: var(--stripe-text-muted); margin-left: auto;" id="drawer-timestamp">Just now</span>
+            </div>
+
+            <!-- Route & Parameters -->
+            <div class="stripe-inspect-section">
+                <div class="stripe-inspect-title">Route & Query Parameters</div>
+                <div style="font-family: var(--font-code); font-size: 0.88rem; color: #fff; margin-bottom: 8px;" id="drawer-endpoint">/api/v1/incidents</div>
+                <div style="font-size: 0.82rem; color: var(--stripe-text-muted);">
+                    Query: <code style="color: #67e8f9;" id="drawer-params">city=las_vegas&limit=10</code>
+                </div>
+            </div>
+
+                <div class="stripe-inspect-section">
+                    <div class="stripe-inspect-title">Request Headers</div>
+                    <div style="font-family: var(--font-code); font-size: 0.8rem; color: var(--stripe-text-secondary); line-height: 1.6;">
+                        <div><span style="color: #a5b4fc;">Accept:</span> application/json</div>
+                        <div><span style="color: #a5b4fc;">X-API-Key:</span> civic_demo_••••••••••••</div>
+                        <div><span style="color: #a5b4fc;">User-Agent:</span> Argus-Dashboard/1.0</div>
+                    </div>
+                </div>
+
+            <!-- Response JSON Inspector -->
+            <div class="stripe-inspect-section" style="flex: 1;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <div class="stripe-inspect-title" style="margin-bottom: 0;">Response Body (JSON)</div>
+                    <button class="btn btn-secondary btn-sm copy-btn" data-clipboard-target="#drawer-json">Copy JSON</button>
+                </div>
+                <pre class="code-block" id="drawer-json" style="max-height: 380px; overflow-y: auto; background: #060910; padding: 14px; border-radius: 6px; font-size: 0.82rem;"></pre>
+            </div>
+        </div>
+    </aside>
+
+    <script src="/static/js/app.js"></script>
+    <script src="/static/js/stripe_dashboard.js"></script>
+</body>
+</html>

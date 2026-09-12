@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}API Key Management | Argus Developer Hub{% endblock %}
+
+{% block content %}
+<div class="container" style="padding: 40px 24px 80px;">
+    <div style="max-width: 820px; margin: 0 auto;">
+        <div style="text-align: center; margin-bottom: 40px;">
+            <h1 style="font-size: 2.2rem; font-weight: 800; margin-bottom: 10px;">API Keys & Access Management</h1>
+            <p style="color: var(--text-muted); font-size: 1.05rem;">Generate instant API keys to start integrating municipal data from Las Vegas, LA, Seattle, and Phoenix.</p>
+        </div>
+
+        <!-- Generated Key Alert Box (Hidden initially) -->
+        <div id="key-result-box" class="card" style="display: none; margin-bottom: 30px; background: rgba(16, 185, 129, 0.08); border-color: rgba(16, 185, 129, 0.4);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                <h3 style="color: #34d399; font-size: 1.1rem; font-weight: 700;">Key Successfully Generated!</h3>
+                <span id="generated-key-tier" class="badge badge-online">FREE TIER</span>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 14px;">Copy your secret API key now. Store it safely in your environment variables.</p>
+            <div style="display: flex; gap: 10px;">
+                <input type="text" id="generated-key-val" class="form-control" readonly style="font-family: var(--font-mono); font-weight: 600; color: #34d399;">
+                <button class="btn btn-primary copy-btn" data-clipboard-target="#generated-key-val">Copy Key</button>
+            </div>
+        </div>
+
+        <!-- Key Generation Form -->
+        <div class="card" style="margin-bottom: 40px;">
+            <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 20px;">Generate New API Key</h2>
+            <form id="form-generate-key">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px;">
+                    <div class="form-group">
+                        <label for="key-name">Full Name / Organization</label>
+                        <input type="text" id="key-name" class="form-control" placeholder="e.g. Jane Doe or CivicTech Inc" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="key-email">Developer Email</label>
+                        <input type="email" id="key-email" class="form-control" placeholder="developer@company.com" required>
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 24px;">
+                    <label for="key-tier">Choose Plan Tier</label>
+                    <select id="key-tier" class="form-control">
+                        <option value="free" selected>Free Explorer Tier - 30 req/min (No credit card needed)</option>
+                        <option value="developer">Developer Pro Tier - 120 req/min (Production apps)</option>
+                        <option value="enterprise">Enterprise Tier - 600 req/min (High-throughput batching)</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary" id="btn-submit-key" style="width: 100%;">
+                    Issue API Key
+                </button>
+            </form>
+        </div>
+
+        <!-- Pre-Configured Demo Keys -->
+        <div class="card" style="margin-bottom: 40px;">
+            <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 10px;">Pre-Configured Demo Keys</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">You can also use any of these sandbox keys immediately for testing:</p>
+
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <div style="font-family: var(--font-mono); font-weight: 600; font-size: 0.9rem; color: #a5b4fc;">civic_demo_free_key_2026</div>
+                        <div style="font-size: 0.78rem; color: var(--text-dim);">Free Tier &bull; 30 requests/min</div>
+                    </div>
+                    <button class="btn btn-secondary btn-sm copy-btn" data-clipboard-text="civic_demo_free_key_2026">Copy</button>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <div style="font-family: var(--font-mono); font-weight: 600; font-size: 0.9rem; color: #67e8f9;">civic_demo_pro_key_2026</div>
+                        <div style="font-size: 0.78rem; color: var(--text-dim);">Developer Pro Tier &bull; 120 requests/min</div>
+                    </div>
+                    <button class="btn btn-secondary btn-sm copy-btn" data-clipboard-text="civic_demo_pro_key_2026">Copy</button>
+                </div>
+
+                <div style="display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3); padding: 12px 16px; border-radius: 8px; border: 1px solid var(--border-subtle); flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <div style="font-family: var(--font-mono); font-weight: 600; font-size: 0.9rem; color: #34d399;">civic_demo_enterprise_key_2026</div>
+                        <div style="font-size: 0.78rem; color: var(--text-dim);">Enterprise Tier &bull; 600 requests/min</div>
+                    </div>
+                    <button class="btn btn-secondary btn-sm copy-btn" data-clipboard-text="civic_demo_enterprise_key_2026">Copy</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Key Verification Tool -->
+        <div class="card">
+            <h2 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 12px;">Verify API Key & Quota</h2>
+            <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 16px;">Test an existing key to view its registered plan, request history, and quota status.</p>
+            <div style="display: flex; gap: 10px; margin-bottom: 16px;">
+                <input type="text" id="verify-key-input" class="form-control" placeholder="Paste your API key here..." style="font-family: var(--font-mono); font-size: 0.88rem;">
+                <button class="btn btn-secondary" id="btn-verify-key">Verify</button>
+            </div>
+            <pre class="code-block" id="verify-output" style="display: none; background: #090d16; padding: 14px; border-radius: 8px;"></pre>
+        </div>
+    </div>
+</div>
+{% endblock %}

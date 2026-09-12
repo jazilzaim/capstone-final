@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In | Argus Developer Platform{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="min-height: calc(100vh - 200px); display: flex; align-items: center; justify-content: center; padding: 40px 20px; position: relative; overflow: hidden;">
+    <!-- Radiant Mesh Glow Background -->
+    <div style="position: absolute; top: 15%; left: 50%; transform: translateX(-50%); width: 600px; height: 350px; background: radial-gradient(ellipse at center, rgba(99, 91, 255, 0.22) 0%, rgba(0, 212, 255, 0.08) 50%, transparent 80%); filter: blur(50px); pointer-events: none; z-index: 0;"></div>
+
+    <div class="auth-card" style="width: 100%; max-width: 440px; background: rgba(14, 21, 37, 0.75); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 36px 32px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04); position: relative; z-index: 1;">
+        
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 28px;">
+            <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #635bff, #00d4ff); border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; color: #fff; margin-bottom: 14px; box-shadow: 0 8px 20px rgba(99, 91, 255, 0.35);">AR</div>
+            <h1 style="font-size: 1.55rem; font-weight: 800; color: #fff; margin: 0 0 8px; letter-spacing: -0.5px;">Sign in to Argus</h1>
+            <p style="font-size: 0.88rem; color: var(--stripe-text-secondary); margin: 0;">Access your municipal open data dashboard & API keys</p>
+        </div>
+
+        <!-- Flash Alert Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div style="margin-bottom: 20px;">
+                    {% for category, message in messages %}
+                        <div style="padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+                            {% if category == 'error' %}
+                                background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5;
+                            {% elif category == 'success' %}
+                                background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #6ee7b7;
+                            {% else %}
+                                background: rgba(99, 91, 255, 0.12); border: 1px solid rgba(99, 91, 255, 0.3); color: #c7d2fe;
+                            {% endif %}">
+                            <span>{% if category == 'error' %}⚠️{% elif category == 'success' %}✅{% else %}ℹ️{% endif %}</span>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Quick 1-Click Demo Login Bar -->
+        <div style="background: rgba(99, 91, 255, 0.08); border: 1px dashed rgba(99, 91, 255, 0.35); border-radius: 10px; padding: 12px 14px; margin-bottom: 22px; display: flex; align-items: center; justify-content: space-between; gap: 10px;">
+            <div>
+                <div style="font-size: 0.78rem; font-weight: 700; color: #a5b4fc; text-transform: uppercase; letter-spacing: 0.5px;">Instant Test Account</div>
+                <div style="font-size: 0.78rem; color: var(--stripe-text-secondary); font-family: var(--font-code);">developer@argus.dev</div>
+            </div>
+            <button type="button" id="btn-fill-demo" class="btn-stripe-secondary" style="padding: 5px 12px; font-size: 0.78rem; white-space: nowrap; border-color: rgba(99,91,255,0.4); color: #c7d2fe;">
+                ⚡ Fill Demo
+            </button>
+        </div>
+
+        <!-- Login Form -->
+        <form method="POST" action="/login" id="login-form">
+            <input type="hidden" name="next" value="{{ next }}">
+
+            <div class="form-group" style="margin-bottom: 18px;">
+                <label for="email" style="display: block; font-size: 0.85rem; font-weight: 600; color: #e2e8f0; margin-bottom: 6px;">Email address</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="name@company.com" value="{{ email or '' }}" required autofocus style="width: 100%; box-sizing: border-box; background: rgba(5, 8, 16, 0.7); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 11px 14px; color: #fff; font-size: 0.92rem;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 24px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                    <label for="password" style="font-size: 0.85rem; font-weight: 600; color: #e2e8f0;">Password</label>
+                    <span style="font-size: 0.78rem; color: var(--stripe-text-muted);">Demo: Password123!</span>
+                </div>
+                <input type="password" id="password" name="password" class="form-control" placeholder="••••••••••••" required style="width: 100%; box-sizing: border-box; background: rgba(5, 8, 16, 0.7); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 11px 14px; color: #fff; font-size: 0.92rem;">
+            </div>
+
+            <button type="submit" class="btn-stripe-primary" id="btn-login-submit" style="width: 100%; padding: 12px; font-size: 0.95rem; font-weight: 600; justify-content: center; border-radius: 8px; box-shadow: 0 4px 14px rgba(99, 91, 255, 0.4);">
+                <span>Sign In to Dashboard</span> &rarr;
+            </button>
+        </form>
+
+        <!-- Footer / Switch to Signup -->
+        <div style="margin-top: 26px; padding-top: 20px; border-top: 1px solid rgba(255, 255, 255, 0.08); text-align: center;">
+            <p style="font-size: 0.86rem; color: var(--stripe-text-secondary); margin: 0;">
+                Don't have an account? 
+                <a href="/signup" style="color: #67e8f9; font-weight: 600; text-decoration: none;">Create developer account &rarr;</a>
+            </p>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const demoBtn = document.getElementById('btn-fill-demo');
+    if (demoBtn) {
+        demoBtn.addEventListener('click', function() {
+            document.getElementById('email').value = 'developer@argus.dev';
+            document.getElementById('password').value = 'Password123!';
+            demoBtn.innerHTML = '✓ Filled!';
+            demoBtn.style.color = '#34d399';
+            setTimeout(() => {
+                demoBtn.innerHTML = '⚡ Fill Demo';
+                demoBtn.style.color = '#c7d2fe';
+            }, 1500);
+        });
+    }
+});
+</script>
+{% endblock %}

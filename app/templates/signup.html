@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+
+{% block title %}Create Developer Account | Argus Open Data Platform{% endblock %}
+
+{% block content %}
+<div class="auth-wrapper" style="min-height: calc(100vh - 200px); display: flex; align-items: center; justify-content: center; padding: 50px 20px; position: relative; overflow: hidden;">
+    <!-- Radiant Glow Background -->
+    <div style="position: absolute; top: 15%; left: 50%; transform: translateX(-50%); width: 700px; height: 400px; background: radial-gradient(ellipse at center, rgba(0, 212, 255, 0.18) 0%, rgba(99, 91, 255, 0.12) 50%, transparent 80%); filter: blur(60px); pointer-events: none; z-index: 0;"></div>
+
+    <div class="auth-card" style="width: 100%; max-width: 480px; background: rgba(14, 21, 37, 0.78); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; padding: 36px 32px; backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px); box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.04); position: relative; z-index: 1;">
+        
+        <!-- Header -->
+        <div style="text-align: center; margin-bottom: 24px;">
+            <div style="width: 44px; height: 44px; background: linear-gradient(135deg, #00d4ff, #635bff); border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.2rem; color: #fff; margin-bottom: 14px; box-shadow: 0 8px 20px rgba(0, 212, 255, 0.35);">AR</div>
+            <h1 style="font-size: 1.55rem; font-weight: 800; color: #fff; margin: 0 0 8px; letter-spacing: -0.5px;">Create developer account</h1>
+            <p style="font-size: 0.88rem; color: var(--stripe-text-secondary); margin: 0;">Instant access to unified Las Vegas, LA, Seattle, and Phoenix data</p>
+        </div>
+
+        <!-- Flash Alert Messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <div style="margin-bottom: 20px;">
+                    {% for category, message in messages %}
+                        <div style="padding: 10px 14px; border-radius: 8px; font-size: 0.85rem; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;
+                            {% if category == 'error' %}
+                                background: rgba(239, 68, 68, 0.12); border: 1px solid rgba(239, 68, 68, 0.3); color: #fca5a5;
+                            {% elif category == 'success' %}
+                                background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.3); color: #6ee7b7;
+                            {% else %}
+                                background: rgba(99, 91, 255, 0.12); border: 1px solid rgba(99, 91, 255, 0.3); color: #c7d2fe;
+                            {% endif %}">
+                            <span>{% if category == 'error' %}⚠️{% elif category == 'success' %}✅{% else %}ℹ️{% endif %}</span>
+                            <span>{{ message }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endif %}
+        {% endwith %}
+
+        <!-- Sandbox Benefit Callout -->
+        <div style="background: rgba(0, 212, 255, 0.06); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 10px; padding: 12px 14px; margin-bottom: 22px; display: flex; align-items: center; gap: 12px;">
+            <div style="font-size: 1.4rem;">🔑</div>
+            <div style="font-size: 0.82rem; color: var(--stripe-text-secondary); line-height: 1.4;">
+                <strong style="color: #67e8f9;">Automatic Sandbox Provisioning:</strong> We will automatically generate your free explorer API token upon registration.
+            </div>
+        </div>
+
+        <!-- Signup Form -->
+        <form method="POST" action="/signup" id="signup-form">
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label for="name" style="display: block; font-size: 0.85rem; font-weight: 600; color: #e2e8f0; margin-bottom: 6px;">Full name or Organization</label>
+                <input type="text" id="name" name="name" class="form-control" placeholder="e.g. Elena Rostova" value="{{ name or '' }}" required autofocus style="width: 100%; box-sizing: border-box; background: rgba(5, 8, 16, 0.7); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 11px 14px; color: #fff; font-size: 0.92rem;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 16px;">
+                <label for="email" style="display: block; font-size: 0.85rem; font-weight: 600; color: #e2e8f0; margin-bottom: 6px;">Work or developer email</label>
+                <input type="email" id="email" name="email" class="form-control" placeholder="elena@company.com" value="{{ email or '' }}" required style="width: 100%; box-sizing: border-box; background: rgba(5, 8, 16, 0.7); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 11px 14px; color: #fff; font-size: 0.92rem;">
+            </div>
+
+            <div class="form-group" style="margin-bottom: 24px;">
+                <label for="password" style="display: block; font-size: 0.85rem; font-weight: 600; color: #e2e8f0; margin-bottom: 6px;">Create a secure password</label>
+                <input type="password" id="password" name="password" class="form-control" placeholder="At least 6 characters" minlength="6" required style="width: 100%; box-sizing: border-box; background: rgba(5, 8, 16, 0.7); border: 1px solid rgba(255,255,255,0.15); border-radius: 8px; padding: 11px 14px; color: #fff; font-size: 0.92rem;">
+            </div>
+
+            <button type="submit" class="btn-stripe-primary" id="btn-signup-submit" style="width: 100%; padding: 12px; font-size: 0.95rem; font-weight: 600; justify-content: center; border-radius: 8px; box-shadow: 0 4px 14px rgba(0, 212, 255, 0.4);">
+                <span>Create Account & Get Key</span> &rarr;
+            </button>
+        </form>
+
+        <!-- Terms Note -->
+        <p style="font-size: 0.75rem; color: var(--stripe-text-muted); text-align: center; margin: 16px 0 0; line-height: 1.5;">
+            By registering, you agree to the Argus Open Data Fair Use Guidelines and Municipal API Terms.
+        </p>
+
+        <!-- Footer / Switch to Sign In -->
+        <div style="margin-top: 24px; padding-top: 18px; border-top: 1px solid rgba(255, 255, 255, 0.08); text-align: center;">
+            <p style="font-size: 0.86rem; color: var(--stripe-text-secondary); margin: 0;">
+                Already have an account? 
+                <a href="/login" style="color: #635bff; font-weight: 600; text-decoration: none;">Sign in here &rarr;</a>
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}

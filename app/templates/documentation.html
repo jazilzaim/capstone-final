@@ -1,0 +1,500 @@
+{% extends "base.html" %}
+
+{% block title %}API Reference | Argus Developer Documentation{% endblock %}
+
+{% block content %}
+<div class="stripe-docs-container">
+    <!-- Column 1: Left Navigation Tree -->
+    <aside class="stripe-docs-nav">
+        <div style="font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: var(--stripe-text-muted); margin-bottom: 12px; letter-spacing: 0.5px;">
+            Documentation
+        </div>
+        <ul style="list-style: none; display: flex; flex-direction: column; gap: 4px; padding: 0;">
+            <li><a href="#getting-started" class="stripe-nav-item active">Getting Started</a></li>
+            <li><a href="#authentication" class="stripe-nav-item">Authentication</a></li>
+            <li><a href="#rate-limits" class="stripe-nav-item">Rate Limiting</a></li>
+            <li><a href="#endpoint-incidents" class="stripe-nav-item">Public Safety Incidents</a></li>
+            <li><a href="#endpoint-permits" class="stripe-nav-item">Building Permits</a></li>
+            <li><a href="#endpoint-businesses" class="stripe-nav-item">Commercial Entities</a></li>
+            <li><a href="#endpoint-cities" class="stripe-nav-item">City Connectors</a></li>
+            <li><a href="#endpoint-analytics" class="stripe-nav-item">Analytics & Aggregates</a></li>
+            <li><a href="#errors" class="stripe-nav-item">Errors & HTTP Codes</a></li>
+        </ul>
+
+        <div style="margin-top: 30px; padding: 16px; background: rgba(99, 91, 255, 0.08); border: 1px solid rgba(99, 91, 255, 0.2); border-radius: 8px;">
+            <div style="font-size: 0.8rem; font-weight: 700; color: #a5b4fc; margin-bottom: 6px;">Need sandbox testing?</div>
+            <p style="font-size: 0.75rem; color: var(--stripe-text-secondary); margin-bottom: 10px;">Switch to Test Mode in the Stripe Dashboard to simulate responses with zero upstream latency.</p>
+            <a href="/dashboard" class="btn-stripe-secondary btn-sm" style="font-size: 0.75rem; width: 100%; justify-content: center;">Open Dashboard</a>
+        </div>
+    </aside>
+
+    <!-- Column 2: Center Documentation Content -->
+    <section>
+        {% if current_user %}
+            <!-- Personalized Auto-Generated Credentials Banner -->
+            <div style="background: linear-gradient(135deg, rgba(99, 91, 255, 0.12) 0%, rgba(0, 212, 255, 0.06) 100%); border: 1px solid rgba(99, 91, 255, 0.3); border-radius: 12px; padding: 18px 24px; margin-bottom: 30px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;">
+                    <div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="stripe-status-pill stripe-status-200">Personalized for {{ current_user.name }}</span>
+                            <span style="font-size: 0.75rem; color: #a5b4fc; text-transform: uppercase;">{{ user_plan_tier | upper }} TIER</span>
+                        </div>
+                        <div style="font-size: 0.95rem; font-weight: 600; color: #fff; margin-top: 6px;">
+                            Live API credentials automatically injected into all documentation examples below
+                        </div>
+                        <div style="font-size: 0.82rem; color: var(--stripe-text-secondary); margin-top: 4px;">
+                            Active Secret Key: <code style="color: #67e8f9; font-family: var(--font-code);">{{ user_primary_key }}</code>
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button type="button" class="btn-stripe-secondary copy-btn" data-clipboard-text="{{ user_primary_key }}" style="padding: 6px 14px; font-size: 0.82rem;">Copy Key</button>
+                        <a href="/dashboard/workbench" class="btn-stripe-primary" style="padding: 6px 14px; font-size: 0.82rem;">▶ Test in Workbench</a>
+                    </div>
+                </div>
+            </div>
+        {% else %}
+            <!-- Unauthenticated Callout Banner -->
+            <div style="background: rgba(0, 212, 255, 0.05); border: 1px solid rgba(0, 212, 255, 0.2); border-radius: 12px; padding: 16px 20px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                <div style="font-size: 0.88rem; color: var(--stripe-text-secondary);">
+                    💡 <strong>Pro Tip:</strong> <a href="/login" style="color: #67e8f9; font-weight: 600;">Sign in</a> or <a href="/signup" style="color: #67e8f9; font-weight: 600;">create an account</a> to automatically populate all code snippets with your personal secret API keys.
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <a href="/login" class="btn-stripe-secondary" style="padding: 6px 14px; font-size: 0.82rem;">Sign In</a>
+                    <a href="/signup" class="btn-stripe-primary btn-sm" style="padding: 6px 14px; font-size: 0.82rem;">Get Keys &rarr;</a>
+                </div>
+            </div>
+        {% endif %}
+
+        <!-- Getting Started -->
+        <div id="getting-started" style="margin-bottom: 50px;">
+            <h1 style="font-size: 2rem; font-weight: 800; letter-spacing: -0.03em; margin-bottom: 12px;">Argus API Reference</h1>
+            <p style="color: var(--stripe-text-secondary); font-size: 1.05rem; line-height: 1.6; margin-bottom: 20px;">
+                The Argus API is organized around REST. All requests use standard HTTP methods and return JSON-encoded responses. The API standardizes municipal open data across <strong>Las Vegas, Los Angeles, Seattle, and Phoenix</strong> into unified data structures.
+            </p>
+            <div class="stripe-kpi-card" style="padding: 16px; margin-bottom: 24px;">
+                <div style="font-size: 0.82rem; color: var(--stripe-text-muted); margin-bottom: 4px;">Base URL:</div>
+                <code style="font-family: var(--font-code); font-size: 1rem; color: #00d4ff;">http://127.0.0.1:5000/api/v1</code>
+            </div>
+        </div>
+
+        <!-- Authentication -->
+        <div id="authentication" style="margin-bottom: 50px; border-top: 1px solid var(--stripe-border-subtle); padding-top: 40px;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 12px;">Authentication</h2>
+            <p style="color: var(--stripe-text-secondary); font-size: 0.95rem; margin-bottom: 16px;">
+                Authenticate your API requests by including your secret API key in the <code>X-API-Key</code> request header or as a query parameter.
+            </p>
+            <div class="stripe-kpi-card" style="padding: 16px;">
+                <div style="font-size: 0.8rem; color: var(--stripe-text-muted); margin-bottom: 4px;">Header Format:</div>
+                <code style="font-family: var(--font-code); font-size: 0.9rem; color: #34d399;">X-API-Key: {{ user_primary_key }}</code>
+            </div>
+        </div>
+
+        <!-- Rate Limits -->
+        <div id="rate-limits" style="margin-bottom: 50px; border-top: 1px solid var(--stripe-border-subtle); padding-top: 40px;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 12px;">Rate Limiting</h2>
+            <p style="color: var(--stripe-text-secondary); font-size: 0.95rem; margin-bottom: 16px;">
+                Argus enforces a sliding-window rate limit depending on your plan tier. Rate limit headers are returned on all requests:
+            </p>
+            <ul style="color: var(--stripe-text-secondary); font-size: 0.9rem; line-height: 1.8; list-style-position: inside; margin-bottom: 20px;">
+                <li><code>X-RateLimit-Limit</code>: The request quota for the current 60-second window.</li>
+                <li><code>X-RateLimit-Remaining</code>: The number of remaining requests allowed.</li>
+                <li><code>X-RateLimit-Reset</code>: Seconds remaining until your quota resets.</li>
+            </ul>
+        </div>
+
+        <!-- Endpoint: Incidents -->
+        <div id="endpoint-incidents" style="margin-bottom: 50px; border-top: 1px solid var(--stripe-border-subtle); padding-top: 40px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <span class="stripe-method-badge">GET</span>
+                <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">/api/v1/incidents</h2>
+            </div>
+            <p style="color: var(--stripe-text-secondary); font-size: 0.95rem; margin-bottom: 20px;">
+                Retrieve standardized public safety, police, and emergency incident records across Las Vegas, LA, Seattle, and Phoenix.
+            </p>
+
+            <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 10px;">Query Parameters</h3>
+            <table class="stripe-table" style="margin-bottom: 20px;">
+                <thead>
+                    <tr>
+                        <th>Param</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>city</code></td>
+                        <td>string</td>
+                        <td>Target municipality: <code>las_vegas</code>, <code>los_angeles</code>, <code>seattle</code>, <code>phoenix</code>, or <code>all</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>category</code></td>
+                        <td>string</td>
+                        <td>Filter: <code>Violent Crime</code>, <code>Property Crime</code>, <code>Traffic</code>, <code>Public Order</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>query</code></td>
+                        <td>string</td>
+                        <td>Keyword search across incident type and description</td>
+                    </tr>
+                    <tr>
+                        <td><code>limit</code></td>
+                        <td>integer</td>
+                        <td>Number of results (1 to 100, default: 20)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Endpoint: Permits -->
+        <div id="endpoint-permits" style="margin-bottom: 50px; border-top: 1px solid var(--stripe-border-subtle); padding-top: 40px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <span class="stripe-method-badge">GET</span>
+                <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">/api/v1/permits</h2>
+            </div>
+            <p style="color: var(--stripe-text-secondary); font-size: 0.95rem; margin-bottom: 20px;">
+                Retrieve normalized residential and commercial construction, alteration, and solar permits across Las Vegas, LA, Seattle, and Phoenix.
+            </p>
+
+            <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 10px;">Query Parameters</h3>
+            <table class="stripe-table" style="margin-bottom: 20px;">
+                <thead>
+                    <tr>
+                        <th>Param</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>city</code></td>
+                        <td>string</td>
+                        <td>Target municipality: <code>las_vegas</code>, <code>los_angeles</code>, <code>seattle</code>, <code>phoenix</code>, or <code>all</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>permit_type</code></td>
+                        <td>string</td>
+                        <td>Filter: <code>Residential</code>, <code>Commercial</code>, <code>Alteration</code>, <code>Solar</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>query</code></td>
+                        <td>string</td>
+                        <td>Search across permit description, applicant name, and address</td>
+                    </tr>
+                    <tr>
+                        <td><code>limit</code></td>
+                        <td>integer</td>
+                        <td>Number of results (1 to 100, default: 20)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Endpoint: Businesses -->
+        <div id="endpoint-businesses" style="margin-bottom: 50px; border-top: 1px solid var(--stripe-border-subtle); padding-top: 40px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <span class="stripe-method-badge">GET</span>
+                <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">/api/v1/businesses</h2>
+            </div>
+            <p style="color: var(--stripe-text-secondary); font-size: 0.95rem; margin-bottom: 20px;">
+                Retrieve registered commercial establishments, active business licenses, and NAICS industry classifications.
+            </p>
+
+            <h3 style="font-size: 1rem; font-weight: 700; color: #fff; margin-bottom: 10px;">Query Parameters</h3>
+            <table class="stripe-table" style="margin-bottom: 20px;">
+                <thead>
+                    <tr>
+                        <th>Param</th>
+                        <th>Type</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>city</code></td>
+                        <td>string</td>
+                        <td>Target municipality: <code>las_vegas</code>, <code>los_angeles</code>, <code>seattle</code>, <code>phoenix</code>, or <code>all</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>category</code></td>
+                        <td>string</td>
+                        <td>Filter: <code>Restaurant & Food</code>, <code>Retail</code>, <code>Professional Services</code>, <code>Healthcare</code></td>
+                    </tr>
+                    <tr>
+                        <td><code>query</code></td>
+                        <td>string</td>
+                        <td>Search by business name or address</td>
+                    </tr>
+                    <tr>
+                        <td><code>limit</code></td>
+                        <td>integer</td>
+                        <td>Number of results (1 to 100, default: 20)</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Endpoint: Cities -->
+        <div id="endpoint-cities" style="margin-bottom: 50px; border-top: 1px solid var(--stripe-border-subtle); padding-top: 40px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <span class="stripe-method-badge">GET</span>
+                <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">/api/v1/cities</h2>
+            </div>
+            <p style="color: var(--stripe-text-secondary); font-size: 0.95rem; margin-bottom: 20px;">
+                Returns municipal connector metadata, open data portal endpoints, live upstream status, and dataset sync health.
+            </p>
+        </div>
+
+        <!-- Endpoint: Analytics -->
+        <div id="endpoint-analytics" style="margin-bottom: 50px; border-top: 1px solid var(--stripe-border-subtle); padding-top: 40px;">
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                <span class="stripe-method-badge">GET</span>
+                <h2 style="font-size: 1.5rem; font-weight: 700; margin: 0;">/api/v1/analytics/summary</h2>
+            </div>
+            <p style="color: var(--stripe-text-secondary); font-size: 0.95rem; margin-bottom: 20px;">
+                Aggregated cross-city metrics including incident totals, city-by-city breakdowns, cache hit rates, and system uptime.
+            </p>
+        </div>
+
+        <!-- Errors -->
+        <div id="errors" style="margin-bottom: 50px; border-top: 1px solid var(--stripe-border-subtle); padding-top: 40px;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 12px;">Errors & HTTP Codes</h2>
+            <p style="color: var(--stripe-text-secondary); font-size: 0.95rem; margin-bottom: 20px;">
+                Argus uses conventional HTTP response codes to indicate API success or failure. Codes in the <code>2xx</code> range indicate success, <code>4xx</code> indicate client errors, and <code>5xx</code> indicate gateway or upstream failures.
+            </p>
+
+            <table class="stripe-table" style="margin-bottom: 20px;">
+                <thead>
+                    <tr>
+                        <th>Code</th>
+                        <th>Status</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><code>200 OK</code></td>
+                        <td>Success</td>
+                        <td>The request succeeded and returned normalized data.</td>
+                    </tr>
+                    <tr>
+                        <td><code>400 Bad Request</code></td>
+                        <td>Validation Error</td>
+                        <td>Invalid query parameters, limit out of range, or unknown city.</td>
+                    </tr>
+                    <tr>
+                        <td><code>401 Unauthorized</code></td>
+                        <td>Authentication Error</td>
+                        <td>Missing or invalid <code>X-API-Key</code> header.</td>
+                    </tr>
+                    <tr>
+                        <td><code>429 Too Many Requests</code></td>
+                        <td>Rate Limit Exceeded</td>
+                        <td>Request quota exceeded for the current window. Check <code>X-RateLimit-Reset</code>.</td>
+                    </tr>
+                    <tr>
+                        <td><code>502 Bad Gateway</code></td>
+                        <td>Upstream Error</td>
+                        <td>The municipal open data portal is temporarily unreachable.</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <!-- Column 3: Right Sticky Code Console (Stripe Style) -->
+    <aside class="stripe-docs-code-pane">
+        <div class="stripe-code-card">
+            <div style="padding: 10px 14px; background: rgba(255,255,255,0.03); border-bottom: 1px solid var(--stripe-border-subtle); display: flex; justify-content: space-between; align-items: center;">
+                <label for="docs-endpoint-select" style="font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.5px; color: var(--stripe-text-muted); margin: 0;">Select Endpoint:</label>
+                <select id="docs-endpoint-select" style="background: #0d1322; border: 1px solid rgba(255,255,255,0.12); color: #00d4ff; border-radius: 6px; font-size: 0.76rem; padding: 3px 8px; font-family: var(--font-code);">
+                    <option value="incidents">GET /api/v1/incidents</option>
+                    <option value="permits">GET /api/v1/permits</option>
+                    <option value="businesses">GET /api/v1/businesses</option>
+                    <option value="cities">GET /api/v1/cities</option>
+                    <option value="analytics">GET /api/v1/analytics/summary</option>
+                </select>
+            </div>
+            <div class="stripe-code-header">
+                <div class="stripe-lang-tabs" id="docs-code-tabs">
+                    <button type="button" class="stripe-lang-tab active" data-docs-lang="curl">cURL</button>
+                    <button type="button" class="stripe-lang-tab" data-docs-lang="python">Python</button>
+                    <button type="button" class="stripe-lang-tab" data-docs-lang="node">Node.js</button>
+                    <button type="button" class="stripe-lang-tab" data-docs-lang="go">Go</button>
+                </div>
+                <button type="button" class="btn-stripe-secondary copy-btn" data-clipboard-target="#docs-code-sample" style="padding: 3px 8px; font-size: 0.72rem;">Copy</button>
+            </div>
+            <pre class="code-block" id="docs-code-sample" style="padding: 16px; margin: 0; font-size: 0.8rem; background: #070b14; line-height: 1.5; white-space: pre; overflow-x: auto;"></pre>
+        </div>
+
+        <div class="stripe-code-card">
+            <div class="stripe-code-header">
+                <div style="font-size: 0.8rem; font-weight: 600; color: #fff;">Response (200 OK)</div>
+                <span class="stripe-status-pill stripe-status-200" style="font-size: 0.72rem;">200 OK</span>
+            </div>
+            <pre class="code-block" id="docs-response-sample" style="padding: 16px; margin: 0; font-size: 0.78rem; max-height: 360px; overflow-y: auto; background: #070b14; line-height: 1.45;"></pre>
+        </div>
+    </aside>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const userApiKey = "{{ user_primary_key or 'argus_demo_free_key_2026' }}";
+    const origin = window.location.origin;
+
+    const endpointData = {
+        'incidents': {
+            path: '/api/v1/incidents?city=all&limit=5',
+            response: {
+                "status": "success",
+                "meta": {
+                    "total": 5,
+                    "city": "all",
+                    "cached": true,
+                    "response_time_ms": 14.2
+                },
+                "data": [
+                    {
+                        "id": "LV-INC-2026-901",
+                        "city": "las_vegas",
+                        "incident_type": "BURGLARY RESIDENCE",
+                        "category": "Property Crime",
+                        "location": {
+                            "address": "2200 E CHARLESTON BLVD",
+                            "latitude": 36.159,
+                            "longitude": -115.118
+                        }
+                    }
+                ]
+            }
+        },
+        'permits': {
+            path: '/api/v1/permits?city=los_angeles&limit=5',
+            response: {
+                "status": "success",
+                "meta": {
+                    "total": 5,
+                    "city": "los_angeles",
+                    "cached": true,
+                    "response_time_ms": 18.0
+                },
+                "data": [
+                    {
+                        "id": "LA-PRM-2026-1024",
+                        "city": "los_angeles",
+                        "permit_type": "Commercial Solar Installation",
+                        "status": "Issued",
+                        "valuation": 85000,
+                        "location": {
+                            "address": "700 S FLOWER ST",
+                            "latitude": 34.048,
+                            "longitude": -118.258
+                        }
+                    }
+                ]
+            }
+        },
+        'businesses': {
+            path: '/api/v1/businesses?city=seattle&limit=5',
+            response: {
+                "status": "success",
+                "meta": {
+                    "total": 5,
+                    "city": "seattle",
+                    "cached": true,
+                    "response_time_ms": 11.7
+                },
+                "data": [
+                    {
+                        "id": "SEA-BIZ-2026-440",
+                        "city": "seattle",
+                        "business_name": "PACIFIC ROASTING LAB",
+                        "category": "Restaurant & Food",
+                        "status": "Active",
+                        "location": {
+                            "address": "1520 4TH AVE",
+                            "latitude": 47.611,
+                            "longitude": -122.337
+                        }
+                    }
+                ]
+            }
+        },
+        'cities': {
+            path: '/api/v1/cities',
+            response: {
+                "status": "success",
+                "count": 4,
+                "data": [
+                    { "id": "las_vegas", "name": "Las Vegas, NV", "status": "online", "portal": "ArcGIS Open Data" },
+                    { "id": "los_angeles", "name": "Los Angeles, CA", "status": "online", "portal": "Socrata" },
+                    { "id": "seattle", "name": "Seattle, WA", "status": "online", "portal": "Socrata" },
+                    { "id": "phoenix", "name": "Phoenix, AZ", "status": "online", "portal": "CKAN" }
+                ]
+            }
+        },
+        'analytics': {
+            path: '/api/v1/analytics/summary',
+            response: {
+                "status": "success",
+                "uptime_pct": 99.8,
+                "cache_hit_ratio": 0.88,
+                "total_records": 12450,
+                "cities_monitored": 4
+            }
+        }
+    };
+
+    let currentLang = 'curl';
+    let currentEndpoint = 'incidents';
+
+    const codeSampleEl = document.getElementById('docs-code-sample');
+    const responseSampleEl = document.getElementById('docs-response-sample');
+    const endpointSelect = document.getElementById('docs-endpoint-select');
+    const langTabs = document.querySelectorAll('#docs-code-tabs [data-docs-lang]');
+
+    function renderDocsCode() {
+        const epInfo = endpointData[currentEndpoint] || endpointData['incidents'];
+        const fullUrl = `${origin}${epInfo.path}`;
+
+        let code = '';
+        if (currentLang === 'curl') {
+            code = `curl -X GET "${fullUrl}" \\\n  -H "X-API-Key: ${userApiKey}" \\\n  -H "Accept: application/json"`;
+        } else if (currentLang === 'python') {
+            code = `import requests\n\nurl = "${fullUrl}"\nheaders = {\n    "X-API-Key": "${userApiKey}",\n    "Accept": "application/json"\n}\n\nresponse = requests.get(url, headers=headers)\nprint(response.json())`;
+        } else if (currentLang === 'node') {
+            code = `const response = await fetch("${fullUrl}", {\n  headers: {\n    "X-API-Key": "${userApiKey}",\n    "Accept": "application/json"\n  }\n});\nconst data = await response.json();\nconsole.log(data);`;
+        } else if (currentLang === 'go') {
+            code = `package main\n\nimport (\n\t"fmt"\n\t"net/http"\n\t"io"\n)\n\nfunc main() {\n\treq, _ := http.NewRequest("GET", "${fullUrl}", nil)\n\treq.Header.Set("X-API-Key", "${userApiKey}")\n\treq.Header.Set("Accept", "application/json")\n\t\n\tclient := &http.Client{}\n\tresp, _ := client.Do(req)\n\tdefer resp.Body.Close()\n\tbody, _ := io.ReadAll(resp.Body)\n\tfmt.Println(string(body))\n}`;
+        }
+
+        if (codeSampleEl) {
+            codeSampleEl.textContent = code;
+        }
+
+        if (responseSampleEl) {
+            responseSampleEl.textContent = JSON.stringify(epInfo.response, null, 2);
+        }
+    }
+
+    langTabs.forEach(tab => {
+        tab.addEventListener('click', function() {
+            langTabs.forEach(t => t.classList.remove('active'));
+            this.classList.add('active');
+            currentLang = this.getAttribute('data-docs-lang');
+            renderDocsCode();
+        });
+    });
+
+    if (endpointSelect) {
+        endpointSelect.addEventListener('change', function() {
+            currentEndpoint = this.value;
+            renderDocsCode();
+        });
+    }
+
+    // Initialize initial render
+    renderDocsCode();
+});
+</script>
+{% endblock %}
