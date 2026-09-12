@@ -4,9 +4,30 @@ from flask import request, g, session, redirect, url_for, flash
 from app.models.storage import db
 from app.core.exceptions import UnauthorizedError, ForbiddenError
 
+class AuthService:
+    """
+    AuthService component matching the UML Component Diagram.
+    Provides unified authentication services for API keys, bearer tokens, and user credentials.
+    """
+    @staticmethod
+    def verify_api_key(api_key: str) -> Optional[Dict[str, Any]]:
+        if not api_key:
+            return None
+        return db.get_key_info(api_key)
+
+    @staticmethod
+    def authenticate_user(email: str, password: str) -> Optional[Dict[str, Any]]:
+        return db.authenticate_user(email, password)
+
+    @staticmethod
+    def get_current_user() -> Optional[Dict[str, Any]]:
+        return session.get("user")
+
+auth_service = AuthService()
+
 def get_current_user() -> Optional[Dict[str, Any]]:
     """Retrieve currently authenticated user from Flask session."""
-    return session.get("user")
+    return auth_service.get_current_user()
 
 def login_required(f):
     """

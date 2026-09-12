@@ -1,5 +1,6 @@
 import sqlite3
 import secrets
+import json
 import time
 import logging
 import threading
@@ -79,6 +80,23 @@ class Storage:
                     status_code INTEGER NOT NULL,
                     latency_ms REAL NOT NULL,
                     timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+            """)
+            cursor.execute("""
+                CREATE TABLE IF NOT EXISTS pipeline_jobs (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    job_id TEXT UNIQUE NOT NULL,
+                    user_email TEXT NOT NULL,
+                    name TEXT NOT NULL,
+                    status TEXT NOT NULL,
+                    cities_json TEXT NOT NULL,
+                    datasets_json TEXT NOT NULL,
+                    query_params_json TEXT DEFAULT '{}',
+                    result_json TEXT,
+                    error_message TEXT,
+                    history_json TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                 )
             """)
             conn.commit()
@@ -485,6 +503,131 @@ class Storage:
             else:
                 cursor.execute("SELECT * FROM api_keys ORDER BY id DESC LIMIT 50")
                 return [dict(row) for row in cursor.fetchall()]
+
+    # ---------------------------------------------------------
+    # State Machine Pipeline Jobs
+    # ---------------------------------------------------------
+    def create_pipeline_job(
+        self,
+        user_email: str,
+        name: str,
+        cities: List[str],
+        datasets: List[str],
+        query_params: Optional[Dict[str, Any]] = None,
+        initial_status: str = "Draft"
+    ) -> Dict[str, Any]:
+        job_id = f"job_{secrets.token_hex(6)}"
+        now_iso = datetime.now(timezone.utc).isoformat()
+        initial_history = [{
+            "from_state": None,
+            "to_state": initial_status,
+            "event": "initial",
+            "timestamp": now_iso,
+            "metadata": {"created_by": user_email}
+        }]
+
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                INSERT INTO pipeline_jobs (
+                    job_id, user_email, name, status, cities_json, datasets_json, query_params_json, history_json, created_at, updated_at
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            """, (
+                job_id,
+                user_email.strip().lower(),
+                name.strip(),
+                initial_status,
+                json.dumps(cities),
+                json.dumps(datasets),
+                json.dumps(query_params or {}),
+                json.dumps(initial_history),
+                now_iso,
+                now_iso
+            ))
+            conn.commit()
+
+        return self.get_pipeline_job(job_id)
+
+    def get_pipeline_job(self, job_id: str) -> Optional[Dict[str, Any]]:
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute("SELECT * FROM pipeline_jobs WHERE job_id = ?", (job_id,))
+            row = cursor.fetchone()
+            if not row:
+                return None
+            data = dict(row)
+            data["cities"] = json.loads(data["cities_json"])
+            data["datasets"] = json.loads(data["datasets_json"])
+            data["query_params"] = json.loads(data["query_params_json"]) if data.get("query_params_json") else {}
+            data["result"] = json.loads(data["result_json"]) if data.get("result_json") else None
+            data["history"] = json.loads(data["history_json"]) if data.get("history_json") else []
+            return data
+
+    def list_pipeline_jobs(self, user_email: Optional[str] = None, limit: int = 50) -> List[Dict[str, Any]]:
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            if user_email:
+                cursor.execute("""
+                    SELECT * FROM pipeline_jobs WHERE user_email = ? ORDER BY id DESC LIMIT ?
+                """, (user_email.strip().lower(), limit))
+            else:
+                cursor.execute("""
+                    SELECT * FROM pipeline_jobs ORDER BY id DESC LIMIT ?
+                """, (limit,))
+            rows = cursor.fetchall()
+            results = []
+            for row in rows:
+                data = dict(row)
+                data["cities"] = json.loads(data["cities_json"])
+                data["datasets"] = json.loads(data["datasets_json"])
+                data["query_params"] = json.loads(data["query_params_json"]) if data.get("query_params_json") else {}
+                data["result"] = json.loads(data["result_json"]) if data.get("result_json") else None
+                data["history"] = json.loads(data["history_json"]) if data.get("history_json") else []
+                results.append(data)
+            return results
+
+    def update_pipeline_job_state(
+        self,
+        job_id: str,
+        new_status: str,
+        history_entry: Optional[Dict[str, Any]] = None,
+        error_message: Optional[str] = None,
+        result_data: Optional[Dict[str, Any]] = None
+    ) -> Optional[Dict[str, Any]]:
+        job = self.get_pipeline_job(job_id)
+        if not job:
+            return None
+
+        history = job.get("history", [])
+        if history_entry:
+            history.append(history_entry)
+
+        now_iso = datetime.now(timezone.utc).isoformat()
+        result_json_str = json.dumps(result_data) if result_data is not None else (
+            json.dumps(job["result"]) if job.get("result") is not None else None
+        )
+
+        with self._get_conn() as conn:
+            cursor = conn.cursor()
+            cursor.execute("""
+                UPDATE pipeline_jobs
+                SET status = ?,
+                    history_json = ?,
+                    error_message = ?,
+                    result_json = ?,
+                    updated_at = ?
+                WHERE job_id = ?
+            """, (
+                new_status,
+                json.dumps(history),
+                error_message if error_message is not None else job.get("error_message"),
+                result_json_str,
+                now_iso,
+                job_id
+            ))
+            conn.commit()
+
+        return self.get_pipeline_job(job_id)
 
 # Global storage instance
 db = Storage()

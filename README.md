@@ -97,6 +97,16 @@ For direct machine-to-machine testing via cURL or SDKs, the following sandbox ke
 | `GET` | `/api/v1/cities` | Supported municipal portals, connector health & latencies |
 | `GET` | `/api/v1/cities/<city_id>` | Detailed metadata for a single municipality |
 | `GET` | `/api/v1/analytics/summary` | Cross-city aggregates and comparative metrics |
+| `GET` | `/api/v1/jobs` | List state machine pipeline jobs |
+| `POST` | `/api/v1/jobs` | Create multi-city asynchronous data pipeline job |
+| `GET` | `/api/v1/jobs/<id>` | Inspect state machine audit trail and result payload |
+| `POST` | `/api/v1/jobs/<id>/submit` | Submit job for validation and worker execution |
+| `POST` | `/api/v1/jobs/<id>/cancel` | Cancel job and transition to terminal FinalState |
+| `GET` | `/api/v1/gov/connectors` | List all 6 GovApiConnectors (Census, BLS, BEA, Treasury, FEC, USAspending) |
+| `GET` | `/api/v1/gov/<connector>` | Query specific GovApiConnector data and regional indicators |
+| `GET` | `/api/v1/gov/analytics/econ` | Data Management Cluster: EconAnalyzer parity benchmarks |
+| `GET` | `/api/v1/gov/analytics/policy`| Data Management Cluster: PolicyAnalyzer federal funding density |
+| `GET` | `/api/v1/gov/charts/economic`| Downstream VisualizationService Chart.js payloads |
 | `POST` | `/api/v1/keys` | Self-service API Key generation |
 | `POST` | `/api/v1/keys/generate` | API Key generation alias |
 | `GET` | `/api/v1/keys/verify` | Inspect key tier and quota status |

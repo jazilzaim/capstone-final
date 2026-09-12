@@ -34,6 +34,10 @@
                     <span class="stripe-nav-icon">🛠️</span>
                     <span>Workbench</span>
                 </a>
+                <a href="/dashboard/jobs" class="stripe-nav-item {% if request.path.startswith('/dashboard/jobs') %}active{% endif %}" id="nav-dash-jobs">
+                    <span class="stripe-nav-icon">🔄</span>
+                    <span>Pipeline Jobs</span>
+                </a>
 
                 <div class="stripe-nav-group-title">Developers</div>
                 <a href="/dashboard/keys" class="stripe-nav-item {% if request.path == '/dashboard/keys' %}active{% endif %}" id="nav-dash-keys">

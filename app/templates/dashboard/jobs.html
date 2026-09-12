@@ -1,0 +1,396 @@
+{% extends "dashboard/layout.html" %}
+
+{% block title %}Argus Pipeline Jobs | State Machine Execution{% endblock %}
+
+{% block content %}
+<div style="margin-bottom: 24px; display: flex; align-items: flex-start; justify-content: space-between; flex-wrap: wrap; gap: 16px;">
+    <div>
+        <h1 style="font-size: 1.5rem; font-weight: 700; color: #fff; margin: 0 0 6px 0;">Pipeline Jobs & State Machine</h1>
+        <p style="color: var(--stripe-text-muted); font-size: 0.9rem; margin: 0;">
+            Deterministic lifecycle management for asynchronous multi-city extraction & analytics jobs across Las Vegas, LA, Seattle, and Phoenix.
+        </p>
+    </div>
+    <div style="display: flex; gap: 10px;">
+        <button onclick="document.getElementById('new-job-modal').style.display='flex'" class="stripe-btn stripe-btn-primary" id="btn-create-job">
+            <span>➕</span> New Pipeline Job
+        </button>
+    </div>
+</div>
+
+<!-- Interactive UML State Machine Architecture Card -->
+<div class="stripe-card" style="margin-bottom: 24px; border: 1px solid rgba(99,91,255,0.25); background: linear-gradient(180deg, rgba(99,91,255,0.04) 0%, rgba(10,15,28,0.7) 100%);">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 12px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <span style="font-size: 1.2rem;">⚙️</span>
+            <div>
+                <div style="font-size: 0.95rem; font-weight: 700; color: #fff;">UML Finite State Machine Lifecycle</div>
+                <div style="font-size: 0.75rem; color: var(--stripe-text-muted);">Strict transition guards, background worker dispatch, and immutable audit trail</div>
+            </div>
+        </div>
+        <span class="stripe-tag stripe-tag-active" style="font-size: 0.72rem;">ACTIVE ENGINE</span>
+    </div>
+
+    <!-- Visual Interactive Flowchart Nodes -->
+    <div style="display: flex; flex-direction: column; gap: 14px; overflow-x: auto; padding: 10px 0;">
+        <!-- Primary Happy Path -->
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; min-width: 820px;">
+            <div style="width: 24px; height: 24px; border-radius: 50%; background: #fff; box-shadow: 0 0 10px rgba(255,255,255,0.8); flex-shrink: 0;" title="Initial State"></div>
+            <span style="color: var(--stripe-text-muted); font-size: 0.72rem; font-family: monospace;">──initial──►</span>
+
+            <!-- Draft -->
+            <div class="sm-node" style="background: rgba(99,91,255,0.15); border: 1px solid #635bff; color: #a5b4fc; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.82rem; text-align: center;">
+                Draft <span style="display: block; font-size: 0.68rem; opacity: 0.7;">(Initial)</span>
+            </div>
+            <span style="color: var(--stripe-text-muted); font-size: 0.72rem; font-family: monospace;">──submit()──►</span>
+
+            <!-- Submitted -->
+            <div class="sm-node" style="background: rgba(99,91,255,0.25); border: 1px solid #635bff; color: #fff; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.82rem; text-align: center;">
+                Submitted
+            </div>
+            <span style="color: var(--stripe-text-muted); font-size: 0.72rem; font-family: monospace;">──validationOk──►</span>
+
+            <!-- Queued -->
+            <div class="sm-node" style="background: rgba(0,212,255,0.15); border: 1px solid #00d4ff; color: #38bdf8; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.82rem; text-align: center;">
+                Queued
+            </div>
+            <span style="color: var(--stripe-text-muted); font-size: 0.72rem; font-family: monospace;">──workerStarts()──►</span>
+
+            <!-- Fetching -->
+            <div class="sm-node" style="background: rgba(245,158,11,0.15); border: 1px solid #f59e0b; color: #fcd34d; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.82rem; text-align: center;">
+                Fetching
+            </div>
+            <span style="color: var(--stripe-text-muted); font-size: 0.72rem; font-family: monospace;">──success──►</span>
+
+            <!-- Analyzing -->
+            <div class="sm-node" style="background: rgba(168,85,247,0.15); border: 1px solid #a855f7; color: #d8b4fe; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.82rem; text-align: center;">
+                Analyzing
+            </div>
+            <span style="color: var(--stripe-text-muted); font-size: 0.72rem; font-family: monospace;">──success──►</span>
+
+            <!-- Completed -->
+            <div class="sm-node" style="background: rgba(16,185,129,0.15); border: 1px solid #10b981; color: #34d399; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.82rem; text-align: center;">
+                Completed
+            </div>
+            <span style="color: var(--stripe-text-muted); font-size: 0.72rem; font-family: monospace;">──archivePolicy──►</span>
+
+            <!-- Archived -->
+            <div class="sm-node" style="background: rgba(100,116,139,0.2); border: 2px double #94a3b8; color: #cbd5e1; padding: 8px 14px; border-radius: 8px; font-weight: 600; font-size: 0.82rem; text-align: center;">
+                Archived <span style="display: block; font-size: 0.68rem; opacity: 0.7;">(Terminal)</span>
+            </div>
+        </div>
+
+        <!-- Exception & Cancellation Branches -->
+        <div style="display: flex; gap: 16px; flex-wrap: wrap; margin-top: 6px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.08); font-size: 0.75rem; color: var(--stripe-text-muted);">
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="padding: 2px 8px; border-radius: 4px; background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); font-weight: 600;">FailedValidation</span>
+                <span>validationError ➔ (Error) ➔ Draft</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="padding: 2px 8px; border-radius: 4px; background: rgba(239,68,68,0.15); color: #f87171; border: 1px solid rgba(239,68,68,0.3); font-weight: 600;">FailedExecution</span>
+                <span>failure ➔ (failure retry) ➔ Draft</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span style="padding: 2px 8px; border-radius: 4px; background: rgba(148,163,184,0.15); color: #94a3b8; border: 1px solid rgba(148,163,184,0.3); font-weight: 600;">Cancelled</span>
+                <span>cancel() / delete() ➔ notifyUser ➔ Final State (Terminal)</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Jobs List Table -->
+<div class="stripe-card" style="padding: 0; overflow: hidden;">
+    <div style="padding: 16px 20px; border-bottom: 1px solid rgba(255,255,255,0.06); display: flex; align-items: center; justify-content: space-between;">
+        <div style="font-size: 0.95rem; font-weight: 700; color: #fff;">
+            Pipeline Jobs ({{ jobs | length }})
+        </div>
+        <div style="font-size: 0.8rem; color: var(--stripe-text-muted);">
+            Auto-refreshes states via background ThreadPoolExecutor
+        </div>
+    </div>
+
+    {% if jobs %}
+    <div class="stripe-table-container">
+        <table class="stripe-table" id="jobs-table">
+            <thead>
+                <tr>
+                    <th>Job ID</th>
+                    <th>Name</th>
+                    <th>Municipal Scope</th>
+                    <th>Datasets</th>
+                    <th>Current State</th>
+                    <th>Updated</th>
+                    <th style="text-align: right;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for j in jobs %}
+                <tr>
+                    <td style="font-family: monospace; font-weight: 600; color: #a5b4fc;">
+                        {{ j.job_id }}
+                    </td>
+                    <td style="font-weight: 600; color: #fff;">
+                        {{ j.name }}
+                        {% if j.error_message %}
+                        <div style="font-size: 0.72rem; color: #ef4444; font-weight: 400; max-width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">
+                            ⚠ {{ j.error_message }}
+                        </div>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                            {% for c in j.cities %}
+                            <span style="font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: rgba(255,255,255,0.05); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.08);">
+                                {{ c | replace('_', ' ') | title }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 4px; flex-wrap: wrap;">
+                            {% for d in j.datasets %}
+                            <span style="font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; background: rgba(99,91,255,0.1); color: #a5b4fc;">
+                                {{ d | title }}
+                            </span>
+                            {% endfor %}
+                        </div>
+                    </td>
+                    <td>
+                        {% if j.status == 'Draft' %}
+                            <span class="stripe-tag" style="background: rgba(99,91,255,0.15); color: #a5b4fc; border: 1px solid #635bff;">Draft</span>
+                        {% elif j.status == 'Submitted' %}
+                            <span class="stripe-tag" style="background: rgba(99,91,255,0.25); color: #fff;">Submitted</span>
+                        {% elif j.status == 'Queued' %}
+                            <span class="stripe-tag" style="background: rgba(0,212,255,0.15); color: #38bdf8;">Queued</span>
+                        {% elif j.status == 'Fetching' %}
+                            <span class="stripe-tag stripe-tag-active" style="background: rgba(245,158,11,0.2); color: #fcd34d; border-color: #f59e0b;">Fetching ⚡</span>
+                        {% elif j.status == 'Analyzing' %}
+                            <span class="stripe-tag stripe-tag-active" style="background: rgba(168,85,247,0.2); color: #d8b4fe; border-color: #a855f7;">Analyzing ⚙️</span>
+                        {% elif j.status == 'Completed' %}
+                            <span class="stripe-tag" style="background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid #10b981;">Completed ✓</span>
+                        {% elif j.status == 'Archived' %}
+                            <span class="stripe-tag" style="background: rgba(100,116,139,0.2); color: #94a3b8;">Archived</span>
+                        {% elif j.status in ['FailedValidation', 'FailedExecution'] %}
+                            <span class="stripe-tag" style="background: rgba(239,68,68,0.2); color: #f87171; border: 1px solid #ef4444;">{{ j.status }}</span>
+                        {% elif j.status in ['Cancelled', 'FinalState'] %}
+                            <span class="stripe-tag" style="background: rgba(148,163,184,0.15); color: #94a3b8;">{{ j.status }}</span>
+                        {% else %}
+                            <span class="stripe-tag">{{ j.status }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="font-size: 0.75rem; color: var(--stripe-text-muted);">
+                        {{ j.updated_at[:19] | replace('T', ' ') }}
+                    </td>
+                    <td style="text-align: right;">
+                        <div style="display: flex; gap: 6px; justify-content: flex-end; align-items: center;">
+                            {% if j.status == 'Draft' %}
+                            <form method="POST" action="/dashboard/jobs/{{ j.job_id }}/action" style="display: inline;">
+                                <input type="hidden" name="action" value="submit">
+                                <button type="submit" class="stripe-btn" style="padding: 4px 10px; font-size: 0.75rem; background: rgba(99,91,255,0.2); color: #a5b4fc;">
+                                    Submit
+                                </button>
+                            </form>
+                            <form method="POST" action="/dashboard/jobs/{{ j.job_id }}/action" style="display: inline;">
+                                <input type="hidden" name="action" value="cancel">
+                                <button type="submit" class="stripe-btn" style="padding: 4px 10px; font-size: 0.75rem; background: rgba(239,68,68,0.1); color: #f87171;">
+                                    Cancel
+                                </button>
+                            </form>
+                            {% elif j.status == 'Queued' %}
+                            <form method="POST" action="/dashboard/jobs/{{ j.job_id }}/action" style="display: inline;">
+                                <input type="hidden" name="action" value="cancel">
+                                <button type="submit" class="stripe-btn" style="padding: 4px 10px; font-size: 0.75rem; background: rgba(239,68,68,0.1); color: #f87171;">
+                                    Cancel
+                                </button>
+                            </form>
+                            {% elif j.status in ['Fetching', 'Analyzing'] %}
+                            <form method="POST" action="/dashboard/jobs/{{ j.job_id }}/action" style="display: inline;">
+                                <input type="hidden" name="action" value="cancel">
+                                <button type="submit" class="stripe-btn" style="padding: 4px 10px; font-size: 0.75rem; background: rgba(239,68,68,0.15); color: #f87171;">
+                                    Delete / Cancel
+                                </button>
+                            </form>
+                            {% elif j.status in ['FailedValidation', 'FailedExecution'] %}
+                            <form method="POST" action="/dashboard/jobs/{{ j.job_id }}/action" style="display: inline;">
+                                <input type="hidden" name="action" value="retry">
+                                <button type="submit" class="stripe-btn" style="padding: 4px 10px; font-size: 0.75rem; background: rgba(245,158,11,0.2); color: #fcd34d;">
+                                    Retry ➔ Draft
+                                </button>
+                            </form>
+                            {% elif j.status == 'Completed' %}
+                            <form method="POST" action="/dashboard/jobs/{{ j.job_id }}/action" style="display: inline;">
+                                <input type="hidden" name="action" value="archive">
+                                <button type="submit" class="stripe-btn" style="padding: 4px 10px; font-size: 0.75rem; background: rgba(148,163,184,0.15); color: #cbd5e1;">
+                                    Archive
+                                </button>
+                            </form>
+                            {% endif %}
+
+                            <button onclick="viewJobHistory('{{ j.job_id }}')" class="stripe-btn" style="padding: 4px 8px; font-size: 0.75rem; background: rgba(255,255,255,0.05); color: var(--stripe-text-muted);">
+                                Audit Trail
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="padding: 48px; text-align: center; color: var(--stripe-text-muted);">
+        <div style="font-size: 2.5rem; margin-bottom: 12px;">🔄</div>
+        <div style="font-size: 1.1rem; font-weight: 600; color: #fff; margin-bottom: 6px;">No Pipeline Jobs Yet</div>
+        <p style="max-width: 420px; margin: 0 auto 20px auto; font-size: 0.85rem;">
+            Create your first multi-city extraction pipeline to trigger the state machine across Las Vegas, Los Angeles, Seattle, and Phoenix.
+        </p>
+        <button onclick="document.getElementById('new-job-modal').style.display='flex'" class="stripe-btn stripe-btn-primary">
+            Create First Job
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<!-- New Pipeline Job Modal -->
+<div id="new-job-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+    <div class="stripe-card" style="width: 100%; max-width: 540px; background: #0c1220; border: 1px solid rgba(255,255,255,0.12); box-shadow: 0 20px 40px rgba(0,0,0,0.6);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="font-size: 1.2rem; font-weight: 700; color: #fff; margin: 0;">Create Data Pipeline Job</h2>
+            <button onclick="document.getElementById('new-job-modal').style.display='none'" style="background: none; border: none; color: var(--stripe-text-muted); font-size: 1.2rem; cursor: pointer;">✕</button>
+        </div>
+
+        <form method="POST" action="/dashboard/jobs/new">
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--stripe-text-muted); margin-bottom: 6px;">Job Title</label>
+                <input type="text" name="name" value="Q3 Cross-City Municipal Analysis" required class="stripe-input" style="width: 100%; box-sizing: border-box;">
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--stripe-text-muted); margin-bottom: 6px;">Target Municipalities (Concurrent Fetch)</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #fff; cursor: pointer;">
+                        <input type="checkbox" name="cities" value="las_vegas" checked> Las Vegas (NV)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #fff; cursor: pointer;">
+                        <input type="checkbox" name="cities" value="los_angeles" checked> Los Angeles (CA)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #fff; cursor: pointer;">
+                        <input type="checkbox" name="cities" value="seattle" checked> Seattle (WA)
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #fff; cursor: pointer;">
+                        <input type="checkbox" name="cities" value="phoenix" checked> Phoenix (AZ)
+                    </label>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 16px;">
+                <label style="display: block; font-size: 0.8rem; font-weight: 600; color: var(--stripe-text-muted); margin-bottom: 6px;">Datasets to Aggregate</label>
+                <div style="display: flex; gap: 14px; flex-wrap: wrap;">
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #fff; cursor: pointer;">
+                        <input type="checkbox" name="datasets" value="incidents" checked> Public Safety
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #fff; cursor: pointer;">
+                        <input type="checkbox" name="datasets" value="permits" checked> Building Permits
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #fff; cursor: pointer;">
+                        <input type="checkbox" name="datasets" value="businesses"> Businesses
+                    </label>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 20px; display: flex; align-items: center; justify-content: space-between;">
+                <div>
+                    <label style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #fff; cursor: pointer; font-weight: 600;">
+                        <input type="checkbox" name="auto_submit" value="1" checked> Auto-Submit on Creation
+                    </label>
+                    <div style="font-size: 0.72rem; color: var(--stripe-text-muted); margin-left: 24px;">
+                        Immediately moves from Draft ➔ Submitted ➔ Queued ➔ Worker
+                    </div>
+                </div>
+                <div>
+                    <input type="number" name="limit" value="10" min="2" max="50" style="width: 70px; padding: 6px 10px; border-radius: 6px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.15); color: #fff; text-align: center;">
+                    <span style="font-size: 0.75rem; color: var(--stripe-text-muted);">records/city</span>
+                </div>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                <button type="button" onclick="document.getElementById('new-job-modal').style.display='none'" class="stripe-btn" style="background: rgba(255,255,255,0.06); color: #fff;">
+                    Cancel
+                </button>
+                <button type="submit" class="stripe-btn stripe-btn-primary">
+                    Launch Pipeline
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Job Audit Trail Modal -->
+<div id="audit-modal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); backdrop-filter: blur(4px); z-index: 9999; align-items: center; justify-content: center; padding: 20px;">
+    <div class="stripe-card" style="width: 100%; max-width: 680px; max-height: 85vh; display: flex; flex-direction: column; background: #0a0f1a; border: 1px solid rgba(255,255,255,0.15);">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; border-bottom: 1px solid rgba(255,255,255,0.08); padding-bottom: 12px;">
+            <div>
+                <h3 style="font-size: 1.1rem; font-weight: 700; color: #fff; margin: 0 0 4px 0;" id="audit-title">State Machine Audit Trail</h3>
+                <div style="font-size: 0.75rem; color: var(--stripe-text-muted);" id="audit-job-id">Loading...</div>
+            </div>
+            <button onclick="document.getElementById('audit-modal').style.display='none'" style="background: none; border: none; color: var(--stripe-text-muted); font-size: 1.2rem; cursor: pointer;">✕</button>
+        </div>
+
+        <div style="flex: 1; overflow-y: auto; padding-right: 6px;">
+            <div id="audit-timeline" style="display: flex; flex-direction: column; gap: 12px;"></div>
+            
+            <div id="audit-results-container" style="margin-top: 16px; display: none;">
+                <div style="font-size: 0.85rem; font-weight: 700; color: #34d399; margin-bottom: 8px;">Completed Output Aggregates</div>
+                <pre id="audit-results-json" style="background: #040711; padding: 12px; border-radius: 6px; font-size: 0.75rem; color: #a5b4fc; overflow-x: auto; border: 1px solid rgba(255,255,255,0.08); max-height: 220px;"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+async function viewJobHistory(jobId) {
+    const modal = document.getElementById('audit-modal');
+    modal.style.display = 'flex';
+    document.getElementById('audit-job-id').textContent = 'Job: ' + jobId;
+    const timeline = document.getElementById('audit-timeline');
+    timeline.innerHTML = '<div style="color: var(--stripe-text-muted); font-size: 0.85rem;">Loading audit trail from API...</div>';
+    const resultsContainer = document.getElementById('audit-results-container');
+    resultsContainer.style.display = 'none';
+
+    try {
+        const res = await fetch(`/api/v1/jobs/${jobId}`);
+        const json = await res.json();
+        if (json.status === 'success') {
+            const job = json.data;
+            document.getElementById('audit-title').textContent = `${job.name} (Current: ${job.status})`;
+            timeline.innerHTML = '';
+            
+            job.history.forEach((h, idx) => {
+                const item = document.createElement('div');
+                item.style.cssText = 'padding: 10px 14px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 6px; display: flex; justify-content: space-between; align-items: flex-start;';
+                item.innerHTML = `
+                    <div>
+                        <div style="font-size: 0.85rem; font-weight: 600; color: #fff;">
+                            ${h.from_state ? h.from_state : 'Initial'} ➔ <span style="color: #635bff;">${h.to_state}</span>
+                        </div>
+                        <div style="font-size: 0.72rem; color: var(--stripe-text-muted); margin-top: 2px;">
+                            Trigger: <code style="color: #38bdf8;">${h.event}</code>
+                            ${h.metadata && h.metadata.error ? `<span style="color: #ef4444; margin-left: 8px;">⚠ ${h.metadata.error}</span>` : ''}
+                        </div>
+                    </div>
+                    <div style="font-size: 0.7rem; color: var(--stripe-text-muted); white-space: nowrap;">
+                        ${h.timestamp ? h.timestamp.replace('T', ' ').substring(0, 19) : ''}
+                    </div>
+                `;
+                timeline.appendChild(item);
+            });
+
+            if (job.result) {
+                resultsContainer.style.display = 'block';
+                document.getElementById('audit-results-json').textContent = JSON.stringify(job.result, null, 2);
+            }
+        }
+    } catch (e) {
+        timeline.innerHTML = `<div style="color: #ef4444;">Failed to load audit history: ${e.message}</div>`;
+    }
+}
+</script>
+{% endblock %}

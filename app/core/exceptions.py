@@ -41,6 +41,16 @@ class UpstreamServiceError(APIError):
     def __init__(self, message="Municipal open data service temporarily unavailable.", details=None):
         super().__init__(message, status_code=502, code="UPSTREAM_SERVICE_ERROR", details=details)
 
+class InvalidStateTransitionError(APIError):
+    def __init__(self, current_state, event, allowed_transitions=None, message=None):
+        msg = message or f"Invalid state transition: Cannot execute event '{event}' from state '{current_state}'."
+        details = {
+            "current_state": str(current_state),
+            "attempted_event": str(event),
+            "allowed_events": [t[1] for t in (allowed_transitions or [])]
+        }
+        super().__init__(msg, status_code=409, code="INVALID_STATE_TRANSITION", details=details)
+
 def register_error_handlers(app):
     @app.errorhandler(APIError)
     def handle_api_error(err):
