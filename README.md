@@ -4,31 +4,6 @@
 [![Flask](https://img.shields.io/badge/Flask-3.1-black.svg)](https://flask.palletsprojects.com/)
 [![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-A unified Flask API product and developer platform that standardizes and serves municipal open government data across four major US cities:
-- **Las Vegas, NV** (ArcGIS REST FeatureServers — Clark County / City of Las Vegas)
-- **Los Angeles, CA** (Socrata SODA REST API — DataLA)
-- **Seattle, WA** (Socrata SODA REST API — Seattle Open Data)
-- **Phoenix, AZ** (CKAN Datastore REST API — Phoenix Open Data)
-
----
-
-## Key Features
-
-1. **Normalized Data Schemas**: Eliminates schema discrepancies between Socrata, CKAN, and ArcGIS portals. All endpoints output standardized JSON envelopes for:
-   - **Public Safety & Emergency Incidents** (`/api/v1/incidents`)
-   - **Building & Construction Permits** (`/api/v1/permits`)
-   - **Commercial Registrations & Business Licenses** (`/api/v1/businesses`)
-   - **Cross-City Analytics & Benchmarking** (`/api/v1/analytics/summary`)
-2. **Interactive Developer Web Portal**:
-   - Live API Playground with real-time JSON syntax highlighting.
-   - 1-click code snippet generators for cURL, Python `requests`, and JavaScript `fetch`.
-   - Live System Status monitor with ping latency tracking to all 4 municipal data portals.
-   - Self-service API Key generation and verification.
-3. **Enterprise API Gateway Features**:
-   - **Authentication**: Key-based (`X-API-Key`) with tiered permissions (`Free`, `Developer`, `Enterprise`).
-   - **Sliding-Window Rate Limiting**: Injects standard RFC rate limit headers (`X-RateLimit-Limit`, `X-RateLimit-Remaining`, `X-RateLimit-Reset`).
-   - **In-Memory TTL Caching**: Sub-20ms response times for repeated queries with cache hit/miss metrics.
-   - **High-Availability Fallback**: Automatic resilience fallback if an upstream city portal undergoes downtime.
 
 ---
 
@@ -58,25 +33,6 @@ python run_prod.py
 ```
 Waitress launches with 8 worker threads, socket backlog of 500, baseline cache warming on startup, and atomic rate limiting.
 
-Visit the Stripe-Inspired Platform & Dashboard at:
-- **Stripe Landing Platform**: [http://127.0.0.1:5000/](http://127.0.0.1:5000/) (Radiant gradient mesh, split-screen code console)
-- **Stripe Developer Dashboard**: [http://127.0.0.1:5000/dashboard](http://127.0.0.1:5000/dashboard) (Overview, KPIs, live activity stream)
-- **Stripe Request Inspector (Logs)**: [http://127.0.0.1:5000/dashboard/logs](http://127.0.0.1:5000/dashboard/logs) (Click-to-inspect drawer for headers & JSON)
-- **Stripe Workbench / Shell**: [http://127.0.0.1:5000/dashboard/workbench](http://127.0.0.1:5000/dashboard/workbench) (Live interactive query runner)
-- **Stripe API Keys & Quota Center**: [http://127.0.0.1:5000/dashboard/keys](http://127.0.0.1:5000/dashboard/keys) (Token reveal/hide, quota consumption meters)
-- **Stripe 3-Column API Reference & Auto-Docs**: [http://127.0.0.1:5000/docs](http://127.0.0.1:5000/docs) (Sticky navigation, real-time authenticated key injection)
-- **City Connectors Health Matrix**: [http://127.0.0.1:5000/status](http://127.0.0.1:5000/status) (Real-time latency monitor)
-
-### 3. User Authentication & Developer Credentials
-
-The platform includes full user account authentication (integrated with **Supabase Auth** and local password hashing):
-- **Sign In**: [http://127.0.0.1:5000/login](http://127.0.0.1:5000/login)
-- **Sign Up**: [http://127.0.0.1:5000/signup](http://127.0.0.1:5000/signup) (automatically issues an `argus_` sandbox API key)
-- **Auto-Generated Personalized Documentation**: When signed in, `/docs` dynamically injects the user's live API key and personalized code snippets.
-- **Pre-Configured Demo Developer Account**:
-  - **Email**: `developer@argus.dev` (or legacy `developer@civicpulse.dev`)
-  - **Password**: `Password123!`
-  - Includes a 1-click **⚡ Fill Demo** button on the sign-in page.
 
 ### 4. Pre-Configured Demo API Keys
 
